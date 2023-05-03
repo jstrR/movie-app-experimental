@@ -1,0 +1,1 @@
+export { type TMovieType, type TMovieGenre, type TMoviesReponse, type TMovieSectionResponse } from "./types"

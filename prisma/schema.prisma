@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider     = "mysql"
+    url          = env("DATABASE_URL")
+    relationMode = "prisma"
+}
+
+model Example {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Account {
+    id            String  @id @default(cuid())
+    userId        String  @map("user_id")
+    type          String
+    provider      String
+    password      String?
+    refresh_token String?
+    access_token  String?
+    expires_at    Int?
+    token_type    String?
+    scope         String?
+    id_token      String?
+    session_state String?
+    user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider])
+    @@index([userId])
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+}
+
+model User {
+    id           String    @id @default(cuid())
+    name         String?
+    mail         String    @unique
+    mailVerified DateTime? @map("mail_verified")
+    image        String?
+    accounts     Account[]
+    sessions     Session[]
+}
+
+// model Genre {
+//     id     Int            @id
+//     name   String         @unique
+//     movies MovieToGenre[]
+// }
+
+// model MovieToGenre {
+//     movie   Movie @relation(fields: [movieId], references: [id])
+//     movieId Int   @map("movie_id")
+//     genre   Genre @relation(fields: [genreId], references: [id])
+//     genreId Int   @map("genre_id")
+
+//     @@id([movieId, genreId])
+// }
+
+// model Movie {
+//     adult            Boolean        @default(false)
+//     backdropPath     String?        @map("backdrop_path")
+//     budget           Int?
+//     id               Int            @id
+//     originalTitle    String?        @map("original_title") @db.VarChar(255)
+//     originalLanguage String?        @map("original_language") @db.VarChar(255)
+//     overview         String
+//     popularity       Int?
+//     posterPath       String?        @map("poster_path") @db.VarChar(255)
+//     releaseDate      DateTime       @map("release_date")
+//     title            String         @db.VarChar(255)
+//     video            Boolean
+//     voteAverage      Int            @map("vote_average")
+//     voteCount        Int            @map("vote_count")
+//     revenue          Int
+//     runtime          Int
+//     status           String         @db.VarChar(255)
+//     tagline          String         @db.VarChar(255)
+//     genres           MovieToGenre[]
+// }
