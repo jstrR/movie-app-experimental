@@ -1,38 +1,51 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
 "use client"
-
+import { useRouter } from 'next/navigation';
 import { TRPCClientError } from "@trpc/client";
 import { useState, type FormEvent, useMemo } from "react";
+import { useCookies } from "react-cookie";
+
 import { trpc } from "~/providers/trpcClient";
 
 type TError = { [key: string]: string[] };
 
+const maxAge = 24 * 60 * 60 * 60;
+
 export default function SignupPage() {
+  const [, setCookie] = useCookies();
+  const router = useRouter();
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [repPassword, setRepPassword] = useState('');
   const [error, setError] = useState<TError | null>(null);
 
-  const signup = trpc.users.signup.useMutation();
-
-  const signupUser = async () => {
-    try {
-      setError(null);
-      await signup.mutateAsync({ name, email, password, repPassword })
-    } catch (e) {
+  const signup = trpc.users.signup.useMutation({
+    onSuccess: (data) => {
+      setCookie('movie-app-token', data.token, { maxAge, secure: true, sameSite: 'strict' });
+      setCookie('movie-app-refresh-token', data.refreshToken, { maxAge: maxAge * 365, secure: true, sameSite: 'strict' });
+      router.replace('/');
+    },
+    onError: e => {
       if (e instanceof TRPCClientError) {
         const errorData = e.data as { zodError: { fieldErrors: { [key: string]: string[] } } };
         if (errorData?.zodError) {
           setError(errorData.zodError.fieldErrors)
+        } else {
+          setError({ 'Server error': [e.message] })
         }
       }
     }
+  });
+
+  const signupUser = () => {
+    setError(null);
+    signup.mutate({ name, email, password, repPassword });
   }
 
-  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await signupUser();
+    signupUser();
   };
 
   const startingError = useMemo(() => error && Object.entries(error)?.[0], [error]);

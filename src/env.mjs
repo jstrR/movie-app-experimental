@@ -9,6 +9,7 @@ const server = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]),
   NEXT_PUBLIC_API_URL: z.string().url(),
   MOVIE_API_KEY: z.string(),
+  JWT_SECRET: z.string(),
 });
 
 /**
@@ -34,6 +35,7 @@ const processEnv = {
   NODE_ENV: process.env.NODE_ENV,
   MOVIE_API_KEY: process.env.MOVIE_API_KEY,
   NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+  JWT_SECRET: process.env.JWT_SECRET,
   // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
 };
 

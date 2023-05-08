@@ -1,7 +1,11 @@
 import { z } from "zod";
-import { PasswordValidation } from "~/entities/user";
+import { hash } from "bcryptjs"
+import { sign } from "jsonwebtoken";
 
+import { PasswordValidation } from "~/entities/user";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { env } from "~/env.mjs";
+import { TRPCError } from "@trpc/server";
 
 export const usersRouter = createTRPCRouter({
   signup: publicProcedure
@@ -11,13 +15,47 @@ export const usersRouter = createTRPCRouter({
       password: z.string().regex(PasswordValidation),
       repPassword: z.string().regex(PasswordValidation)
     })
-    .refine((data) => data.password === data.repPassword, {
-      message: "Passwords don't match",
-      path: ["repPassword"],
-  }))
-    .mutation(({ input }) => {
-      return {
-        greeting: `Hello ${input.name}`,
-      };
+      .refine((data) => data.password === data.repPassword, {
+        message: "Passwords don't match",
+        path: ["repPassword"],
+      }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const hashedPassword = await hash(input.password, 10);
+        const maxAge = 60 * 1000;
+        const token = sign(
+          { mail: input.email, type: 'desktop' },
+          env.JWT_SECRET,
+          {
+            expiresIn: maxAge,
+          }
+        );
+        const refreshToken = sign({ mail: input.email, type: 'desktop' }, env.JWT_SECRET, {
+          expiresIn: "1y",
+        })
+        await ctx.prisma.user.create({
+          data: {
+            name: input.name.charAt(0).toUpperCase() + input.name.slice(1).toLowerCase(),
+            mail: input.email.toLowerCase(),
+            role: 'user',
+            password: hashedPassword,
+            sessions: {
+              create: {
+                type: 'desktop',
+                tokenType: 'jwt',
+                provider: 'creds',
+                refreshToken: refreshToken,
+                expires: new Date(Date.now() + (maxAge * 60)).toISOString(),
+              }
+            }
+          },
+          include: {
+            sessions: true,
+          },
+        });
+        return { token, refreshToken: refreshToken }
+      } catch (err) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'The user with this email has already been created' });
+      }
     }),
 });

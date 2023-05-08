@@ -17,30 +17,34 @@ model Example {
     updatedAt DateTime @updatedAt
 }
 
-model Account {
-    id            String  @id @default(cuid())
-    userId        String  @map("user_id")
-    type          String
-    provider      String
-    password      String?
-    refresh_token String?
-    access_token  String?
-    expires_at    Int?
-    token_type    String?
-    scope         String?
-    id_token      String?
-    session_state String?
-    user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+// model Account {
+//     id           String  @id @default(cuid())
+//     userId       String  @map("user_id")
+//     type         String
+//     provider     String
+//     password     String?
+//     refreshToken String? @map("refresh_token")
+//     accessToken  String? @map("access_token")
+//     expiresAt    Int?
+//     tokenType    String?
+//     scope        String?
+//     idToken      String?
+//     sessionState String?
+//     user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([provider])
-    @@index([userId])
-}
+//     @@unique([provider])
+//     @@index([userId])
+// }
 
 model Session {
     id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
+    sessionToken String?  @unique @map("session_token") @db.VarChar(255)
+    userId       String   @map("user_id")
     expires      DateTime
+    type         String
+    provider     String
+    refreshToken String?  @unique @map("refresh_token") @db.VarChar(255)
+    tokenType    String?  @map("token_type")
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@index([userId])
@@ -52,8 +56,9 @@ model User {
     mail         String    @unique
     mailVerified DateTime? @map("mail_verified")
     image        String?
-    accounts     Account[]
     sessions     Session[]
+    password     String?
+    role         String
 }
 
 // model Genre {

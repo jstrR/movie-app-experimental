@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import { useState } from "react";
+import { useCookies } from "react-cookie";
 import superjson from "superjson";
 import type { AppRouter } from "~/server/api/root";
 
@@ -33,6 +34,8 @@ function getBaseUrl() {
 
 export function ClientProvider(props: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
+  const [cookies] = useCookies(['movie-app-token']);
+
   const [trpcClient] = useState(() =>
     trpc.createClient({
       links: [
@@ -41,6 +44,9 @@ export function ClientProvider(props: { children: React.ReactNode }) {
         }),
         httpBatchLink({
           url: `${getBaseUrl()}/api/trpc`,
+          headers() {
+            return cookies["movie-app-token"] ? { Authorization: cookies["movie-app-token"] as string } : {};
+          },
         }),
       ],
       transformer: superjson,

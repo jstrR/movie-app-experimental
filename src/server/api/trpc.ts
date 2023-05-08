@@ -15,10 +15,9 @@
  * These allow you to access things when processing a request, like the database, the session, etc.
  */
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
+import { verify } from "jsonwebtoken";
 
 import { prisma } from "~/server/db";
-
-type CreateContextOptions = Record<string, never>;
 
 /**
  * This helper generates the "internals" for a tRPC context. If you need to use it, you can export
@@ -30,9 +29,33 @@ type CreateContextOptions = Record<string, never>;
  *
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
-const createInnerTRPCContext = (_opts: CreateContextOptions) => {
+const createInnerTRPCContext = async (_opts: CreateNextContextOptions) => {
+  const getUserFromHeader = async () => {
+    try {
+      if (_opts.req.headers.authorization) {
+        const incomingToken = _opts.req.headers.authorization || "";
+        if (incomingToken) {
+          const decodedToken = verify(
+            incomingToken,
+            env.JWT_SECRET
+          ) as { mail: string };
+          if (decodedToken) {
+            const user = await prisma.user.findFirst({ where: { mail: decodedToken.mail } })
+            return user;
+          }
+        }
+      }
+      return null;
+    } catch(e) {
+      console.log("Context Error: ", e);
+      return null;
+    }
+  }
+
+  const user = await getUserFromHeader();
   return {
     prisma,
+    user
   };
 };
 
@@ -42,8 +65,8 @@ const createInnerTRPCContext = (_opts: CreateContextOptions) => {
  *
  * @see https://trpc.io/docs/context
  */
-export const createTRPCContext = (_opts: CreateNextContextOptions) => {
-  return createInnerTRPCContext({});
+export const createTRPCContext = async (_opts: CreateNextContextOptions) => {
+  return await createInnerTRPCContext(_opts);
 };
 
 /**
@@ -56,6 +79,7 @@ export const createTRPCContext = (_opts: CreateNextContextOptions) => {
 import { initTRPC } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
+import { env } from "~/env.mjs";
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
