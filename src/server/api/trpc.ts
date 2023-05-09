@@ -55,7 +55,8 @@ const createInnerTRPCContext = async (_opts: CreateNextContextOptions) => {
   const user = await getUserFromHeader();
   return {
     prisma,
-    user
+    user,
+    res: _opts.res
   };
 };
 

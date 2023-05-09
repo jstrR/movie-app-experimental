@@ -1,10 +1,9 @@
 import Link from 'next/link'
+import { AuthBar } from '~/features/authBar';
 // import { useTranslation } from "react-i18next";
 // import { useStore } from "effector-react";
 
 // import MenuItem from "@material-ui/core/MenuItem";
-
-import { ButtonNav } from "~/shared/ui/buttons";
 
 export const Header = () => {
   //const location = useLocation();
@@ -77,13 +76,8 @@ export const Header = () => {
           </>
         )}
       </div> */}
-      <div className="flex justify-between gap-y-4 sm:gap-y-0 sm:gap-x-4 sm:mr-20 flex-col sm:flex-row">
-        <ButtonNav href="/login">
-          {"Log in".toLocaleUpperCase()}
-        </ButtonNav>
-        <ButtonNav href="/signup">
-          {"Sign up".toLocaleUpperCase()}
-        </ButtonNav>
+      <div className="flex items-center justify-between gap-y-4 sm:gap-y-0 sm:gap-x-4 sm:mr-20 flex-col sm:flex-row">
+        <AuthBar />
       </div>
     </header>
   );

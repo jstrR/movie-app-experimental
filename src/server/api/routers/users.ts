@@ -33,7 +33,7 @@ export const usersRouter = createTRPCRouter({
         const refreshToken = sign({ mail: input.email, type: 'desktop' }, env.JWT_SECRET, {
           expiresIn: "1y",
         })
-        await ctx.prisma.user.create({
+        const user = await ctx.prisma.user.create({
           data: {
             name: input.name.charAt(0).toUpperCase() + input.name.slice(1).toLowerCase(),
             mail: input.email.toLowerCase(),
@@ -53,7 +53,8 @@ export const usersRouter = createTRPCRouter({
             sessions: true,
           },
         });
-        return { token, refreshToken: refreshToken }
+        ctx.res.setHeader("set-cookie", `movie-app-refresh-token=${refreshToken}; Max-Age=${24 * 60 * 60 * 365}; Path=/api/trpc/users.refresh HttpOnly; Secure; SameSite=Strict;`)
+        return { token, mail: user.mail, name: user.name }
       } catch (err) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'The user with this email has already been created' });
       }

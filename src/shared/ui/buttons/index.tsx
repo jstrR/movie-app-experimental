@@ -1,1 +1,2 @@
-export { ButtonNav } from "./ButtonNav"; 
+export { ButtonNav } from "./ButtonNav";
+export { ButtonGeneric } from "./ButtonGeneric";

@@ -1,4 +1,5 @@
 import './globals.css';
+import { EffectorNext } from "@effector/next";
 
 export const metadata = {
   title: 'Movie-App-experimental',
@@ -13,7 +14,7 @@ export default function RootLayout({ children }: {
 }) {
   return (
     <html lang="en" className="h-full">
-      <body className="h-full">{children}</body>
+      <body className="h-full"><EffectorNext>{children}</EffectorNext></body>
     </html>
   );
 }

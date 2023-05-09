@@ -1,11 +1,12 @@
-"use client";
-
 import type { ComponentProps } from "react";
 import { EffectorNext } from "@effector/next";
+import { fork, serialize } from "effector";
+
+const scope = fork();
 
 export function EffectorAppNext({
-  values,
   children,
 }: ComponentProps<typeof EffectorNext>) {
+  const values = serialize(scope);
   return <EffectorNext values={values}>{children}</EffectorNext>;
 }
