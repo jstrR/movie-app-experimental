@@ -1,10 +1,14 @@
 "use client"
 import { useUnit } from 'effector-react';
+import { usePathname } from 'next/navigation';
+
 import { $currentUser, logout } from '~/entities/user/model';
 
 import { ButtonNav, ButtonGeneric } from "~/shared/ui/buttons";
 
 export const AuthBar = () => {
+  const pathname = usePathname();
+
   const [currentUser, logoutFn] = useUnit([$currentUser, logout]);
   return (
     <>
@@ -19,12 +23,17 @@ export const AuthBar = () => {
         </>
       ) : (
         <>
-          <ButtonNav href="/login">
-            {"Log in".toLocaleUpperCase()}
-          </ButtonNav>
-          <ButtonNav href="/signup">
-            {"Sign up".toLocaleUpperCase()}
-          </ButtonNav>
+          {pathname !== '/login' && (
+            <ButtonNav href="/login">
+              {"Log in".toLocaleUpperCase()}
+            </ButtonNav>
+          )}
+          {pathname !== '/signup' && (
+            <ButtonNav href="/signup">
+              {"Sign up".toLocaleUpperCase()}
+            </ButtonNav>
+          )}
+
         </>
       )}
     </>

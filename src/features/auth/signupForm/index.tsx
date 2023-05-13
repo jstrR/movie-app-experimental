@@ -19,7 +19,7 @@ export const SignupForm = () => {
   const [repPassword, setRepPassword] = useState('');
   const [error, setError] = useState<TError | null>(null);
 
-  const signupMutation = trpc.users.signup.useMutation({
+  const signupMutation = trpc.auth.signup.useMutation({
     onSuccess: (data) => {
       signupFn(data)
       router.replace('/');

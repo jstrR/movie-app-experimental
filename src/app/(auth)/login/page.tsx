@@ -4,9 +4,9 @@ import { useLayoutEffect } from "react";
 import { useUnit } from "effector-react";
 
 import { $currentUser } from '~/entities/user/model';
-import { SignupForm } from '~/features/auth/signupForm';
+import { LoginForm } from '~/features/auth/loginForm';
 
-export default function SignupPage() {
+export default function LoginPage() {
   const router = useRouter();
   const currentUser = useUnit($currentUser);
 
@@ -19,7 +19,7 @@ export default function SignupPage() {
   return (
     <div className="flex flex-col flex-nowrap items-center w-full sm:w-1/2 ">
       <div className="flex grow-[9] flex-col w-full items-center justify-center mt-8 sm:mt-0  ">
-        <SignupForm />
+        <LoginForm />
       </div>
       <div className="flex grow-[1] flex-col justify-end">
         <h2 className="flex text-xl justify-end text-mainColor font-bold mb-4">
