@@ -44,9 +44,50 @@ const createInnerTRPCContext = async (_opts: CreateNextContextOptions) => {
             return user;
           }
         }
+      } else if (!_opts.req.headers.authorization && _opts.req.cookies[refreshCookieName]) {
+        const refreshToken = _opts.req.cookies[refreshCookieName]
+        const decodedToken = verify(
+          refreshToken,
+          env.JWT_SECRET
+        ) as { mail: string; type: string; };
+        if (decodedToken) {
+          const user = await prisma.user.update({
+            include: { sessions: true },
+            data: {
+              sessions: {
+                deleteMany: { refreshToken, type: decodedToken.type }
+              }
+            },
+            where: {
+              mail: decodedToken.mail,
+            }
+          });
+          if (user) {
+            const { refreshToken: newToken, cookieExpireDate, refreshCookie } = generateTokens(user.mail);
+            const updatedUser = await prisma.user.update({
+              include: { sessions: true },
+              data: {
+                sessions: {
+                  create: {
+                    type: 'desktop',
+                    tokenType: 'jwt',
+                    provider: 'creds',
+                    refreshToken: newToken,
+                    expires: cookieExpireDate.toISOString(),
+                  }
+                }
+              },
+              where: {
+                mail: decodedToken.mail,
+              }
+            });
+            _opts.res.setHeader("set-cookie", refreshCookie);
+            return updatedUser;
+          }
+        }
       }
       return null;
-    } catch(e) {
+    } catch (e) {
       console.log("Context Error: ", e);
       return null;
     }
@@ -77,10 +118,11 @@ export const createTRPCContext = async (_opts: CreateNextContextOptions) => {
  * ZodErrors so that you get typesafety on the frontend if your procedure fails due to validation
  * errors on the backend.
  */
-import { initTRPC } from "@trpc/server";
+import { TRPCError, initTRPC } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 import { env } from "~/env.mjs";
+import { generateTokens, refreshCookieName } from "~/shared/auth";
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
@@ -94,6 +136,18 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
       zodError: error.cause instanceof ZodError ? error.cause.flatten() : null,
     };
   },
+});
+
+const isAuthed = t.middleware((opts) => {
+  const { ctx } = opts;
+  if (!ctx.user) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+  return opts.next({
+    ctx: {
+      user: ctx.user,
+    },
+  });
 });
 
 /**
@@ -118,3 +172,5 @@ export const createTRPCRouter = t.router;
  * are logged in.
  */
 export const publicProcedure = t.procedure;
+
+export const protectedProcedure = t.procedure.use(isAuthed);

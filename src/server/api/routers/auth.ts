@@ -21,7 +21,7 @@ export const authRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       try {
         const hashedPassword = await hash(input.password, 10);
-        const { token, refreshToken, tokenMaxAge, refreshCookie } = generateTokens(input.email);
+        const { token, refreshToken, cookieExpireDate, refreshCookie } = generateTokens(input.email);
 
         const user = await ctx.prisma.user.create({
           data: {
@@ -35,7 +35,7 @@ export const authRouter = createTRPCRouter({
                 tokenType: 'jwt',
                 provider: 'creds',
                 refreshToken: refreshToken,
-                expires: new Date(Date.now() + tokenMaxAge).toISOString(),
+                expires: cookieExpireDate.toISOString(),
               }
             }
           },
@@ -56,7 +56,15 @@ export const authRouter = createTRPCRouter({
     }))
     .mutation(async ({ ctx, input }) => {
       try {
-        const existingUser = await ctx.prisma.user.findFirst({ select: { mail: true, name: true, role: true, password: true }, where: { mail: input.email } })
+        const existingUser = await ctx.prisma.user.update({
+          select: { mail: true, name: true, role: true, password: true },
+          data: {
+            sessions: {
+              deleteMany: { type: 'desktop' }
+            }
+          },
+          where: { mail: input.email }
+        })
         if (!existingUser) {
           throw new TRPCError({ code: 'BAD_REQUEST', message: 'User with such email does not exist' });
         }
@@ -64,7 +72,23 @@ export const authRouter = createTRPCRouter({
         if (!passwordsEqual) {
           throw new TRPCError({ code: 'BAD_REQUEST', message: 'Password is incorrect' });
         }
-        const { token, refreshCookie } = generateTokens(input.email);
+        const { token, refreshToken, cookieExpireDate, refreshCookie } = generateTokens(input.email);
+        await ctx.prisma.user.update({
+          data: {
+            sessions: {
+              create: {
+                type: 'desktop',
+                tokenType: 'jwt',
+                provider: 'creds',
+                refreshToken: refreshToken,
+                expires: cookieExpireDate.toISOString(),
+              }
+            }
+          },
+          where: {
+            mail: existingUser.mail,
+          }
+        });
 
         ctx.res.setHeader("set-cookie", refreshCookie)
         return { token, mail: existingUser.mail, name: existingUser.name, role: existingUser.role }

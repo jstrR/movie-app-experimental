@@ -43,7 +43,7 @@ model Session {
     expires      DateTime
     type         String
     provider     String
-    refreshToken String?  @unique @map("refresh_token") @db.VarChar(255)
+    refreshToken String   @unique @map("refresh_token") @db.VarChar(255)
     tokenType    String?  @map("token_type")
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
