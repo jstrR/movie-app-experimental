@@ -4,6 +4,8 @@ import { env } from "~/env.mjs";
 
 export const refreshCookieName = 'movie-app-refresh-token';
 
+export const deletedCookie = `${refreshCookieName}=; path=/api/trpc; expires=${new Date(0).toString()}; ttpOnly; Secure; SameSite=Strict;`;
+
 export const generateTokens = (mail: string) => {
   const tokenMaxAge = 60 * 60 * 1000;
   const currentDate = new Date();

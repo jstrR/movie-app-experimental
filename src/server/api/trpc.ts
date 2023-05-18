@@ -44,52 +44,10 @@ const createInnerTRPCContext = async (_opts: CreateNextContextOptions) => {
             return user;
           }
         }
-      } else if (!_opts.req.headers.authorization && _opts.req.cookies[refreshCookieName]) {
-        const refreshToken = _opts.req.cookies[refreshCookieName]
-        const decodedToken = verify(
-          refreshToken,
-          env.JWT_SECRET
-        ) as { mail: string; type: string; };
-        if (decodedToken) {
-          const user = await prisma.user.update({
-            include: { sessions: true },
-            data: {
-              sessions: {
-                deleteMany: { refreshToken, type: decodedToken.type }
-              }
-            },
-            where: {
-              mail: decodedToken.mail,
-            }
-          });
-          if (user) {
-            const { refreshToken: newToken, cookieExpireDate, refreshCookie } = generateTokens(user.mail);
-            const updatedUser = await prisma.user.update({
-              include: { sessions: true },
-              data: {
-                sessions: {
-                  create: {
-                    type: 'desktop',
-                    tokenType: 'jwt',
-                    provider: 'creds',
-                    refreshToken: newToken,
-                    expires: cookieExpireDate.toISOString(),
-                  }
-                }
-              },
-              where: {
-                mail: decodedToken.mail,
-              }
-            });
-            _opts.res.setHeader("set-cookie", refreshCookie);
-            return updatedUser;
-          }
-        }
       }
       return null;
     } catch (e) {
-      console.log("Context Error: ", e);
-      return null;
+      throw e;
     }
   }
 
@@ -97,6 +55,7 @@ const createInnerTRPCContext = async (_opts: CreateNextContextOptions) => {
   return {
     prisma,
     user,
+    req: _opts.req,
     res: _opts.res
   };
 };
@@ -122,7 +81,6 @@ import { TRPCError, initTRPC } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 import { env } from "~/env.mjs";
-import { generateTokens, refreshCookieName } from "~/shared/auth";
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
