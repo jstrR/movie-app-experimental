@@ -33,10 +33,10 @@ const MovieCard = ({
     <div className="relative h-full flex flex-col justify-between">
       <div>
         <div className="relative w-full bg-white rounded-lg overflow-hidden sm:aspect-w-2 sm:aspect-h-1 lg:aspect-w-1 lg:aspect-h-1 ">
-          <Image src={getImageUrl(poster_path) || ""} alt={title} className="h-120 w-full object-center object-cover hover:opacity-75 hover:cursor-pointer" width={260} height={480} />
+          <Image src={getImageUrl(poster_path) || ""} alt={title} className="w-full object-center object-fill hover:opacity-75 hover:cursor-pointer" width={260} height={450} />
         </div>
         {movieGenres && (
-          <h3 className="mt-6 text-sm text-gray-500">
+          <h3 className="mt-4 text-sm text-gray-500">
             {movieGenres}
           </h3>
         )}
