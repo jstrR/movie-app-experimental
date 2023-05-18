@@ -34,7 +34,8 @@ export const AuthBar = () => {
 
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => {
-      logoutFn()
+      retreivedSession.remove();
+      logoutFn();
     },
     onError: e => {
       console.log(e);
