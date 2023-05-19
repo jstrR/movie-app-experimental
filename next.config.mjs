@@ -23,5 +23,20 @@ const config = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/(login|signup)',
+        has: [
+          {
+            type: 'cookie',
+            key: 'movie-app-refresh-token',
+          },
+        ],
+        permanent: true,
+        destination: '/',
+      },
+    ];
+  },
 };
 export default config;

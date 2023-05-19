@@ -1,21 +1,6 @@
-"use client"
-import { useRouter } from 'next/navigation';
-import { useLayoutEffect } from "react";
-import { useUnit } from "effector-react";
-
-import { $currentUser } from '~/entities/user/model';
 import { LoginForm } from '~/features/auth/loginForm';
 
 export default function LoginPage() {
-  const router = useRouter();
-  const currentUser = useUnit($currentUser);
-
-  useLayoutEffect(() => {
-    if (currentUser) {
-      router.replace('/');
-    }
-  }, [currentUser, router])
-
   return (
     <div className="flex flex-col flex-nowrap items-center w-full sm:w-1/2 ">
       <div className="flex grow-[9] flex-col w-full items-center justify-center mt-8 sm:mt-0  ">

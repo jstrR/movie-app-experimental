@@ -4,7 +4,7 @@ import { env } from "~/env.mjs";
 
 export const refreshCookieName = 'movie-app-refresh-token';
 
-export const deletedCookie = `${refreshCookieName}=; path=/api/trpc; expires=${new Date(0).toString()}; ttpOnly; Secure; SameSite=Strict;`;
+export const deletedCookie = `${refreshCookieName}=; Path=/; expires=${new Date(0).toString()}; HttpOnly; Secure; SameSite=Strict;`;
 
 export const generateTokens = (mail: string) => {
   const tokenMaxAge = 60 * 60 * 1000;
@@ -21,6 +21,6 @@ export const generateTokens = (mail: string) => {
   const refreshToken = sign({ mail, type: 'desktop' }, env.JWT_SECRET, {
     expiresIn: "1m",
   })
-  const refreshCookie = `${refreshCookieName}=${refreshToken}; Expires=${cookieExpireDate.toString()}; Path=/api/trpc; HttpOnly; Secure; SameSite=Strict;`;
+  const refreshCookie = `${refreshCookieName}=${refreshToken}; Expires=${cookieExpireDate.toString()}; Path=/; HttpOnly; Secure; SameSite=Strict;`;
   return { token, refreshToken, tokenMaxAge, refreshCookie, cookieExpireDate }
 };
