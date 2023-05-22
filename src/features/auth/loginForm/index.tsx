@@ -49,9 +49,9 @@ export const LoginForm = () => {
   return (
     <>
       <form className="mt-8 mb-3 text-xl text-blue-500 flex flex-col justify-center items-center w-full gap-y-6" onSubmit={onSubmit}>
-        <input type="email" className="border-2 rounded py-1 px-2 placeholder:text-base placeholder:italic placeholder:text-slate-400 w-5/6 sm:w-3/5" placeholder="Email" name="userMail" value={email} onChange={e => setEmail(e.target.value)} required />
-        <input type="password" className="border-2 rounded py-1 px-2 placeholder:text-base placeholder:italic placeholder:text-slate-400 w-5/6 sm:w-3/5" placeholder="Password" name="userPassword" value={password} onChange={e => setPassword(e.target.value)} required />
-        <button className="mt-2 px-10 py-1 text-xl hover:text-rose-400 text-rose-600 flex justify-center items-center border-2 rounded border-rose-600 hover:border-rose-400 w-5/6 sm:w-3/5" type="submit">Log In!</button>
+        <input type="email" className="border-2 rounded py-1 px-2 placeholder:text-base placeholder:italic placeholder:text-slate-400 w-5/6 sm:w-3/5" placeholder="Email" aria-label="Email" name="userMail" value={email} onChange={e => setEmail(e.target.value)} required />
+        <input type="password" className="border-2 rounded py-1 px-2 placeholder:text-base placeholder:italic placeholder:text-slate-400 w-5/6 sm:w-3/5" placeholder="Password" aria-label="Password" name="userPassword" value={password} onChange={e => setPassword(e.target.value)} required />
+        <button disabled={!email || !password} aria-disabled={!email || !password} className="mt-2 px-10 py-1 text-xl disabled:text-rose-300 hover:text-rose-400 text-rose-600 flex justify-center items-center border-2 rounded border-rose-600 disabled:border-rose-300 hover:border-rose-400 w-5/6 sm:w-3/5" type="submit">Log In!</button>
       </form>
       {startingError && <p className="mt-3 text-xl text-rose-600 text-center">{startingError[0]}: {startingError[1]?.[0]}</p>}
     </>

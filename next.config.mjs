@@ -26,7 +26,7 @@ const config = {
   async redirects() {
     return [
       {
-        source: '/(login|signup)',
+        source: '/(signup|login)',
         has: [
           {
             type: 'cookie',

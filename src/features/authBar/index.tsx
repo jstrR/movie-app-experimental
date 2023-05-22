@@ -65,7 +65,6 @@ export const AuthBar = () => {
               {"Sign up".toLocaleUpperCase()}
             </ButtonNav>
           )}
-
         </>
       )}
     </>
