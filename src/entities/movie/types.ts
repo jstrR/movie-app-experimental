@@ -80,7 +80,7 @@ export type TMovieGenresResponse = {
   genres: TMovieGenre[];
 };
 
-export type TMovieListType = {
+export type TMovieCategory = {
   value: 'popular' | 'upcoming' | 'current' | 'topRated';
   label: string;
 };

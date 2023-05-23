@@ -1,4 +1,3 @@
-import "server-only";
 import Image from 'next/image';
 
 import { getImageUrl } from "~/entities/movie/api";
@@ -16,7 +15,7 @@ export const MovieCard = ({
   genresList,
 }: TMovieCard) => {
   const releaseDateFormatted = new Date(release_date);
-  const movieGenres = genresList?.filter(genre => genre_ids?.includes(genre.id)).slice(0, 3).map(genre => genre.name).join(', ') || "";
+  const movieGenres = genresList.filter(genre => genre_ids?.includes(genre.id)).slice(0, 3).map(genre => genre.name).join(', ') || "";
   return (
     <div className="relative h-full flex flex-col justify-between">
       <div>

@@ -1,26 +1,27 @@
-import { createEffect, createStore, createEvent, split } from 'effector';
+import { createEffect, createStore, createEvent, split, sample } from 'effector';
 
 import { getCurrentMovies, getMoviesGenres, getPopularMovies, getTopRatedMovies, getUpcomingMovies } from './api';
-import type { TMovieSectionResponse, TMovieGenre, TMovieListType } from './types';
+import type { TMovieSectionResponse, TMovieGenre, TMovieCategory } from './types';
 
-export const MoviesListsTypes = [
+export const MoviesCategories = [
   { value: "current", label: "Now playing" },
   { value: "upcoming", label: "Upcoming" },
   { value: "popular", label: "Popular" },
   { value: "topRated", label: "Top rated" },
 ] as const;
 
-const getCurrentMoviesFx = createEffect(() => getCurrentMovies());
-const getPopularMoviesFx = createEffect(() => getPopularMovies());
-const getTopRatedMoviesFx = createEffect(() => getTopRatedMovies());
-const getUpcomingMoviesFx = createEffect(() => getUpcomingMovies());
+export const getCurrentMoviesFx = createEffect(() => getCurrentMovies());
+export const getPopularMoviesFx = createEffect(() => getPopularMovies());
+export const getTopRatedMoviesFx = createEffect(() => getTopRatedMovies());
+export const getUpcomingMoviesFx = createEffect(() => getUpcomingMovies());
 
-const getMoviesGenresFx = createEffect(getMoviesGenres);
+export const getMoviesGenresFx = createEffect(getMoviesGenres);
 
-export const selectMovieList = createEvent<TMovieListType>();
+export const loadMoviesGenres = createEvent();
+export const selectMovieCategory = createEvent<TMovieCategory>();
 
-export const $movieListType = createStore<TMovieListType>(MoviesListsTypes[0]).on(
-  selectMovieList, (_, result) => result,
+export const $movieCategory = createStore<TMovieCategory | null>(null).on(
+  selectMovieCategory, (_, result) => result,
 );
 
 export const $moviesList = createStore<TMovieSectionResponse | null>(null)
@@ -33,13 +34,18 @@ export const $moviesGenres = createStore<TMovieGenre[] | null>(null).on(
   getMoviesGenresFx.doneData, (_, result) => result,
 );
 
+sample({
+  clock: loadMoviesGenres,
+  target: getMoviesGenresFx
+});
+
 split({
-  source: $movieListType,
-  match: (listType: TMovieListType) => listType.value,
+  source: $movieCategory,
+  match: (category: TMovieCategory | null) => category?.value,
   cases: {
-    [MoviesListsTypes[0].value]: getCurrentMoviesFx,
-    [MoviesListsTypes[1].value]: getPopularMoviesFx,
-    [MoviesListsTypes[2].value]: getTopRatedMoviesFx,
-    [MoviesListsTypes[3].value]: getUpcomingMoviesFx,
+    [MoviesCategories[0].value]: getCurrentMoviesFx,
+    [MoviesCategories[1].value]: getPopularMoviesFx,
+    [MoviesCategories[2].value]: getTopRatedMoviesFx,
+    [MoviesCategories[3].value]: getUpcomingMoviesFx,
   }
-})
+});
