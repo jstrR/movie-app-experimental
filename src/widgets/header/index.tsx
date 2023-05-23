@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { AuthBar } from '~/features/authBar';
+import { AuthBar } from '~/features/auth/authBar';
 // import { useTranslation } from "react-i18next";
 // import { useStore } from "effector-react";
 

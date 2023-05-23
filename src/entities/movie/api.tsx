@@ -13,7 +13,7 @@ const makeRequest = (
   method = 'GET',
 ) =>
   fetch(
-    `${env.NEXT_PUBLIC_API_URL}/${url}?api_key=${env.MOVIE_API_KEY}${params ? `&${params}` : ''
+    `${env.NEXT_PUBLIC_API_URL}/${url}?api_key=${env.NEXT_PUBLIC_MOVIE_API_KEY}${params ? `&${params}` : ''
     }`,
     {
       method,
@@ -47,7 +47,37 @@ export const getCurrentMovies = async (
     'movie/now_playing',
     `page=${page}`,
   ) as TMoviesReponse;
-  return { ...resp, type: 'nowPlaying' };
+  return { ...resp, type: 'current' };
+};
+
+export const getPopularMovies = async (
+  page = 1,
+): Promise<TMovieSectionResponse> => {
+  const resp = await makeRequest(
+    'movie/popular',
+    `page=${page}`,
+  ) as TMoviesReponse;
+  return { ...resp, type: 'popular' };
+};
+
+export const getTopRatedMovies = async (
+  page = 1,
+): Promise<TMovieSectionResponse> => {
+  const resp = await makeRequest(
+    'movie/top_rated',
+    `page=${page}`,
+  ) as TMoviesReponse;
+  return { ...resp, type: 'topRated' };
+};
+
+export const getUpcomingMovies = async (
+  page = 1,
+): Promise<TMovieSectionResponse> => {
+  const resp = await makeRequest(
+    'movie/upcoming',
+    `page=${page}`,
+  ) as TMoviesReponse;
+  return { ...resp, type: 'upcoming' };
 };
 
 export const getMoviesGenres = async (): Promise<TMovieGenre[]> => {
