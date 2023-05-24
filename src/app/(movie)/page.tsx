@@ -37,7 +37,7 @@ export default function MoviePage() {
       <MovieCategories />
       {loadingContent ? (
         <section className="flex justify-center items-center h-full">
-          <Loader size={16} marginBottom />
+          <Loader wrapperClasses="mb-16" classes="w-16 h-16" />
         </section>
       ) : (
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 h-full">

@@ -18,7 +18,7 @@ export default {
       },
       flexGrow: {
         1: '1',
-        9 : '9'
+        9: '9'
       }
     },
   },
