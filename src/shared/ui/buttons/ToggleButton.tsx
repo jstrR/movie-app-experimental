@@ -5,7 +5,7 @@ export const ToggleButton = ({
   onChange,
   value,
   label,
-  checked
+  checked,
 }: {
   onChange: () => void;
   value: string;

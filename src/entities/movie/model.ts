@@ -15,9 +15,6 @@ export const getPopularMoviesFx = createEffect(() => getPopularMovies());
 export const getTopRatedMoviesFx = createEffect(() => getTopRatedMovies());
 export const getUpcomingMoviesFx = createEffect(() => getUpcomingMovies());
 
-export const getMoviesGenresFx = createEffect(getMoviesGenres);
-
-export const loadMoviesGenres = createEvent();
 export const selectMovieCategory = createEvent<TMovieCategory>();
 
 export const $movieCategory = createStore<TMovieCategory | null>(null).on(
@@ -43,17 +40,6 @@ export const $moviesListLoading = combine(
   ) => currentLoading || popularLoading || topRatedLoading || upcomingLoading
 );
 
-export const $moviesGenres = createStore<TMovieGenre[] | null>(null).on(
-  getMoviesGenresFx.doneData, (_, result) => result,
-);
-
-export const $moviesGenresLoading = getMoviesGenresFx.pending;
-
-sample({
-  clock: loadMoviesGenres,
-  target: getMoviesGenresFx
-});
-
 split({
   source: $movieCategory,
   match: (category: TMovieCategory | null) => category?.value,
@@ -63,4 +49,19 @@ split({
     [MoviesCategories[2].value]: getTopRatedMoviesFx,
     [MoviesCategories[3].value]: getUpcomingMoviesFx,
   }
+});
+
+export const getMoviesGenresFx = createEffect(getMoviesGenres);
+
+export const loadMoviesGenres = createEvent();
+
+export const $moviesGenres = createStore<TMovieGenre[] | null>(null).on(
+  getMoviesGenresFx.doneData, (_, result) => result,
+);
+
+export const $moviesGenresLoading = getMoviesGenresFx.pending;
+
+sample({
+  clock: loadMoviesGenres,
+  target: getMoviesGenresFx
 });

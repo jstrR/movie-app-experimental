@@ -1,7 +1,7 @@
 "use client"
 import { useUnit } from 'effector-react';
 import { usePathname } from 'next/navigation';
-import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { $currentUser, logout, getSession } from '~/entities/user/model';
 import { trpc } from '~/providers/trpcClient';
@@ -22,7 +22,7 @@ export const AuthBar = () => {
       cacheTime: 0
     });
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!currentUser && retreivedSession.data) {
       getSessionFn(retreivedSession.data);
     }

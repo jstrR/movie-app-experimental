@@ -20,7 +20,7 @@ export default function AuthLayout({
         <div className="bg-[url(https://picsum.photos/600)] bg-no-repeat bg-cover w-1/2 hidden sm:block"></div>
         {children}
       </div>
-      <Footer position="initial" />
+      <Footer />
     </ClientProvider>
   )
 }

@@ -34,14 +34,14 @@ export const LoginForm = () => {
     }
   });
 
-  const signupUser = () => {
+  const loginUser = () => {
     setError(null);
     loginMutation.mutate({ email, password });
   }
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    signupUser();
+    loginUser();
   };
 
   const startingError = useMemo(() => error && Object.entries(error)?.[0], [error]);
