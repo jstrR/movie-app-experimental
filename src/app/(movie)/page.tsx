@@ -1,16 +1,28 @@
 "use client";
 
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect } from "react";
 import { useUnit } from "effector-react";
 
 import { MovieCategories } from "~/features/movies/movieCategories";
-import { $moviesList, $moviesGenres, selectMovieCategory, loadMoviesGenres, MoviesCategories } from "~/entities/movie/model";
+import {
+  $moviesList,
+  $moviesGenres,
+  selectMovieCategory,
+  loadMoviesGenres,
+  MoviesCategories,
+  $moviesGenresLoading,
+  $moviesListLoading
+} from "~/entities/movie/model";
 import { MovieCard } from "~/entities/movie/view";
+import { Loader } from "~/shared/ui/loader";
 
 export default function MoviePage() {
-  const [moviesList, genres, onSelectMovieCategory, getMoviesGenres] = useUnit([$moviesList, $moviesGenres, selectMovieCategory, loadMoviesGenres]);
+  const [moviesList, genres, onSelectMovieCategory, getMoviesGenres] = useUnit([
+    $moviesList, $moviesGenres, selectMovieCategory, loadMoviesGenres
+  ]);
+  const [moviesListLoading, moviesGenresLoading] = useUnit([$moviesListLoading, $moviesGenresLoading]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     onSelectMovieCategory(MoviesCategories[0]);
   }, [onSelectMovieCategory]);
 
@@ -18,14 +30,20 @@ export default function MoviePage() {
     getMoviesGenres();
   }, [getMoviesGenres]);
 
+  const loadingContent = moviesListLoading || moviesGenresLoading || !moviesList || !genres;
+
   return (
-    <div className="container mx-auto flex flex-col items-center justify-center p-4 md:w-9/12 lg:w-8/12">
+    <div className="container mx-auto flex flex-col items-center p-4 md:w-9/12 lg:w-8/12 h-full">
       <MovieCategories />
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-        {moviesList?.results && genres && (
-          moviesList.results.map((movie, i) => <MovieCard key={i} {...movie} genresList={genres} />)
-        )}
-      </section>
+      {loadingContent ? (
+        <section className="flex justify-center items-center h-full">
+          <Loader size={16} marginBottom />
+        </section>
+      ) : (
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+          {moviesList.results.map((movie, i) => <MovieCard key={i} {...movie} genresList={genres} />)}
+        </section>
+      )}
     </div>
   )
 }

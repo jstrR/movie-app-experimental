@@ -1,4 +1,4 @@
-import { createEffect, createStore, createEvent, split, sample } from 'effector';
+import { createEffect, createStore, createEvent, split, sample, combine } from 'effector';
 
 import { getCurrentMovies, getMoviesGenres, getPopularMovies, getTopRatedMovies, getUpcomingMovies } from './api';
 import type { TMovieSectionResponse, TMovieGenre, TMovieCategory } from './types';
@@ -30,9 +30,24 @@ export const $moviesList = createStore<TMovieSectionResponse | null>(null)
   .on(getTopRatedMoviesFx.doneData, (_, result) => result)
   .on(getUpcomingMoviesFx.doneData, (_, result) => result);
 
+export const $moviesListLoading = combine(
+  getCurrentMoviesFx.pending,
+  getPopularMoviesFx.pending,
+  getTopRatedMoviesFx.pending,
+  getUpcomingMoviesFx.pending,
+  (
+    currentLoading,
+    popularLoading,
+    topRatedLoading,
+    upcomingLoading
+  ) => currentLoading || popularLoading || topRatedLoading || upcomingLoading
+);
+
 export const $moviesGenres = createStore<TMovieGenre[] | null>(null).on(
   getMoviesGenresFx.doneData, (_, result) => result,
 );
+
+export const $moviesGenresLoading = getMoviesGenresFx.pending;
 
 sample({
   clock: loadMoviesGenres,

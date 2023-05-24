@@ -4,7 +4,6 @@ import { Footer } from '~/widgets/footer';
 
 export default function AuthLayout({
   children,
-  params,
 }: {
   children: React.ReactNode;
   params: {

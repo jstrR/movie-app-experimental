@@ -3,7 +3,6 @@ import { Header } from '~/widgets/header';
 
 export default function MovieLayout({
   children,
-  params,
 }: {
   children: React.ReactNode;
   params: {
@@ -16,7 +15,7 @@ export default function MovieLayout({
   return (
     <ClientProvider>
       <Header />
-      <main>{children}</main>
+      <main className="h-[calc(100%-75px)]">{children}</main>
     </ClientProvider>
   )
 }
