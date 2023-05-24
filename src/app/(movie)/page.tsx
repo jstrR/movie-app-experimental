@@ -33,14 +33,14 @@ export default function MoviePage() {
   const loadingContent = moviesListLoading || moviesGenresLoading || !moviesList || !genres;
 
   return (
-    <div className="container mx-auto flex flex-col items-center p-4 md:w-9/12 lg:w-8/12 h-full">
+    <div className="container mx-auto flex flex-col items-center p-4 w-3/4 sm:w-5/6 lg:w-2/3">
       <MovieCategories />
       {loadingContent ? (
         <section className="flex justify-center items-center h-full">
           <Loader size={16} marginBottom />
         </section>
       ) : (
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 h-full">
           {moviesList.results.map((movie, i) => <MovieCard key={i} {...movie} genresList={genres} />)}
         </section>
       )}

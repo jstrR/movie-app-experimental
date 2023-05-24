@@ -1,5 +1,6 @@
 import { ClientProvider } from '~/providers/trpcClient';
 import { Header } from '~/widgets/header';
+import { Footer } from '~/widgets/footer';
 
 export default function MovieLayout({
   children,
@@ -15,7 +16,8 @@ export default function MovieLayout({
   return (
     <ClientProvider>
       <Header />
-      <main className="h-[calc(100%-75px)]">{children}</main>
+      <main className="flex min-h-[calc(100dvh-75px-80px)]">{children}</main>
+      <Footer position="initial" />
     </ClientProvider>
   )
 }
