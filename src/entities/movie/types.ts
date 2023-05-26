@@ -85,6 +85,11 @@ export type TMovieCategory = {
   label: string;
 };
 
+export type TMovieCategoryNext = {
+  page: number;
+  category: TMovieCategory["value"];
+}
+
 export type TMovieSectionResponse = TMoviesReponse & {
-  type: string;
+  type: TMovieCategory["value"];
 };

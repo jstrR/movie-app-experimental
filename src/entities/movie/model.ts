@@ -1,7 +1,12 @@
 import { createEffect, createStore, createEvent, split, sample, combine } from 'effector';
 
 import { getCurrentMovies, getMoviesGenres, getPopularMovies, getTopRatedMovies, getUpcomingMovies } from './api';
-import type { TMovieSectionResponse, TMovieGenre, TMovieCategory } from './types';
+import type { TMovieSectionResponse, TMovieGenre, TMovieCategory, TMovieCategoryNext } from './types';
+
+
+const concatStoreResults = (prevStore: TMovieSectionResponse, nextStore: TMovieSectionResponse) => (
+  { ...prevStore, results: prevStore.results.concat(nextStore.results), page: nextStore.page }
+);
 
 export const MoviesCategories = [
   { value: "current", label: "Now playing" },
@@ -10,11 +15,12 @@ export const MoviesCategories = [
   { value: "topRated", label: "Top rated" },
 ] as const;
 
-export const getCurrentMoviesFx = createEffect(() => getCurrentMovies());
-export const getPopularMoviesFx = createEffect(() => getPopularMovies());
-export const getTopRatedMoviesFx = createEffect(() => getTopRatedMovies());
-export const getUpcomingMoviesFx = createEffect(() => getUpcomingMovies());
+export const getCurrentMoviesFx = createEffect((store: TMovieCategoryNext) => getCurrentMovies(store?.page));
+export const getUpcomingMoviesFx = createEffect((store: TMovieCategoryNext) => getUpcomingMovies(store?.page));
+export const getPopularMoviesFx = createEffect((store: TMovieCategoryNext) => getPopularMovies(store?.page));
+export const getTopRatedMoviesFx = createEffect((store: TMovieCategoryNext) => getTopRatedMovies(store?.page));
 
+export const loadNextMovies = createEvent<TMovieCategoryNext>();
 export const selectMovieCategory = createEvent<TMovieCategory>();
 
 export const $movieCategory = createStore<TMovieCategory | null>(null).on(
@@ -22,10 +28,11 @@ export const $movieCategory = createStore<TMovieCategory | null>(null).on(
 );
 
 export const $moviesList = createStore<TMovieSectionResponse | null>(null)
-  .on(getCurrentMoviesFx.doneData, (_, result) => result)
-  .on(getPopularMoviesFx.doneData, (_, result) => result)
-  .on(getTopRatedMoviesFx.doneData, (_, result) => result)
-  .on(getUpcomingMoviesFx.doneData, (_, result) => result);
+  .on(getCurrentMoviesFx.doneData, (store, data) => store && data.page !== 1 ? concatStoreResults(store, data) : data)
+  .on(getPopularMoviesFx.doneData, (store, data) => store && data.page !== 1 ? concatStoreResults(store, data) : data)
+  .on(getTopRatedMoviesFx.doneData, (store, data) => store && data.page !== 1 ? concatStoreResults(store, data) : data)
+  .on(getUpcomingMoviesFx.doneData, (store, data) => store && data.page !== 1 ? concatStoreResults(store, data) : data)
+  .reset(selectMovieCategory)
 
 export const $moviesListLoading = combine(
   getCurrentMoviesFx.pending,
@@ -40,14 +47,21 @@ export const $moviesListLoading = combine(
   ) => currentLoading || popularLoading || topRatedLoading || upcomingLoading
 );
 
-split({
+sample({
   source: $movieCategory,
-  match: (category: TMovieCategory | null) => category?.value,
+  filter: category => !!category,
+  fn: category => ({ category: category?.value || MoviesCategories[0].value, page: 1 }),
+  target: loadNextMovies
+});
+
+split({
+  source: loadNextMovies,
+  match: (data: TMovieCategoryNext) => data.category,
   cases: {
     [MoviesCategories[0].value]: getCurrentMoviesFx,
-    [MoviesCategories[1].value]: getPopularMoviesFx,
-    [MoviesCategories[2].value]: getTopRatedMoviesFx,
-    [MoviesCategories[3].value]: getUpcomingMoviesFx,
+    [MoviesCategories[1].value]: getUpcomingMoviesFx,
+    [MoviesCategories[2].value]: getPopularMoviesFx,
+    [MoviesCategories[3].value]: getTopRatedMoviesFx,
   }
 });
 

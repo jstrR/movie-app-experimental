@@ -129,49 +129,49 @@ export const authRouter = createTRPCRouter({
     .query(async ({ ctx }) => {
       try {
         const incomingToken = ctx.req.headers.authorization || ctx.req.cookies[refreshCookieName] || "";
-        if (incomingToken) {
-          const decodedToken = verify(
-            incomingToken,
-            env.JWT_SECRET
-          ) as { mail: string; type: string; };
-          if (decodedToken) {
-            const user = await ctx.prisma.user.update({
+        if (!incomingToken) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid token' });
+        }
+        const decodedToken = verify(
+          incomingToken,
+          env.JWT_SECRET
+        ) as { mail: string; type: string; };
+        if (decodedToken) {
+          const user = await ctx.prisma.user.update({
+            include: { sessions: true },
+            data: {
+              sessions: {
+                deleteMany: { refreshToken: incomingToken, type: decodedToken.type }
+              }
+            },
+            where: {
+              mail: decodedToken.mail,
+            }
+          });
+          if (user) {
+            const { token, refreshToken: newToken, cookieExpireDate, refreshCookie } = generateTokens(user.mail);
+            await ctx.prisma.user.update({
               include: { sessions: true },
               data: {
                 sessions: {
-                  deleteMany: { refreshToken: incomingToken, type: decodedToken.type }
+                  create: {
+                    type: 'desktop',
+                    tokenType: 'jwt',
+                    provider: 'creds',
+                    refreshToken: newToken,
+                    expires: cookieExpireDate.toISOString(),
+                  }
                 }
               },
               where: {
                 mail: decodedToken.mail,
               }
             });
-            if (user) {
-              const { token, refreshToken: newToken, cookieExpireDate, refreshCookie } = generateTokens(user.mail);
-              await ctx.prisma.user.update({
-                include: { sessions: true },
-                data: {
-                  sessions: {
-                    create: {
-                      type: 'desktop',
-                      tokenType: 'jwt',
-                      provider: 'creds',
-                      refreshToken: newToken,
-                      expires: cookieExpireDate.toISOString(),
-                    }
-                  }
-                },
-                where: {
-                  mail: decodedToken.mail,
-                }
-              });
 
-              ctx.res.setHeader("set-cookie", refreshCookie);
-              return { token, mail: user.mail, name: user.name, role: user.role };
-            }
+            ctx.res.setHeader("set-cookie", refreshCookie);
+            return { token, mail: user.mail, name: user.name, role: user.role };
           }
         }
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid token' });
       } catch (e) {
         if (e instanceof TokenExpiredError) {
           if (!ctx.req.headers.authorization && ctx.req.cookies[refreshCookieName]) {
