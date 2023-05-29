@@ -10,6 +10,7 @@ const server = z.object({
   NEXT_PUBLIC_API_URL: z.string().url(),
   NEXT_PUBLIC_MOVIE_API_KEY: z.string(),
   JWT_SECRET: z.string(),
+  NEXT_PUBLIC_GOOGLE_CLIENT_ID: z.string(),
 });
 
 /**
@@ -22,6 +23,7 @@ const client = z.object(
       // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
       NEXT_PUBLIC_API_URL: z.string().url(),
       NEXT_PUBLIC_MOVIE_API_KEY: z.string(),
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: z.string(),
     }
   ),
 );
@@ -38,6 +40,7 @@ const processEnv = {
   NEXT_PUBLIC_MOVIE_API_KEY: process.env.NEXT_PUBLIC_MOVIE_API_KEY,
   NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   JWT_SECRET: process.env.JWT_SECRET,
+  NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
   // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
 };
 

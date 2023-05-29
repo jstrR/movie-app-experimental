@@ -16,7 +16,7 @@ export default function MovieLayout({
   return (
     <ClientProvider>
       <Header />
-      <main className="flex min-h-[calc(100dvh-75px-80px)]">{children}</main>
+      <main className="flex min-h-[calc(100dvh-75px-64px)]">{children}</main>
       <Footer />
     </ClientProvider>
   )

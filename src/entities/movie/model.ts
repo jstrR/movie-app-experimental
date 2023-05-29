@@ -32,7 +32,7 @@ export const $moviesList = createStore<TMovieSectionResponse | null>(null)
   .on(getPopularMoviesFx.doneData, (store, data) => store && data.page !== 1 ? concatStoreResults(store, data) : data)
   .on(getTopRatedMoviesFx.doneData, (store, data) => store && data.page !== 1 ? concatStoreResults(store, data) : data)
   .on(getUpcomingMoviesFx.doneData, (store, data) => store && data.page !== 1 ? concatStoreResults(store, data) : data)
-  .reset(selectMovieCategory)
+  .reset($movieCategory)
 
 export const $moviesListLoading = combine(
   getCurrentMoviesFx.pending,

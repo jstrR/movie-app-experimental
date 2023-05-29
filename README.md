@@ -24,9 +24,11 @@ You can check out the [create-t3-app GitHub repository](https://github.com/t3-os
 
 ## CURRENT TO DO LIST:
 
-- [ ] Add Google OAuth
-- [ ] Fix session recovery after refresh
+- [x] Add Google OAuth
+- [ ] Fix session recovery after page refresh
 - [ ] Add movie details page
+- [ ] Add dark theme
+- [ ] Update missing accessibility
 - [ ] Fix Google OAuth token expire
-- [ ] Add search bar
 - [ ] Add profile page
+- [ ] Add search bar

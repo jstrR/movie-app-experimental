@@ -1,11 +1,12 @@
 import { z } from "zod";
 import { hash, compare } from "bcryptjs"
 import { TRPCError } from "@trpc/server";
-import { TokenExpiredError, verify } from "jsonwebtoken";
+import { verify } from "jsonwebtoken";
+import { Prisma } from "@prisma/client";
 
 import { PasswordValidation } from "~/entities/user";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { generateTokens, deletedCookie, refreshCookieName } from "~/shared/auth";
+import { generateTokens, deletedCookie, refreshCookieName, type TGoogleCredentials } from "~/shared/auth";
 import { env } from "~/env.mjs";
 
 export const authRouter = createTRPCRouter({
@@ -23,13 +24,14 @@ export const authRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       try {
         const hashedPassword = await hash(input.password, 10);
-        const { token, refreshToken, cookieExpireDate, refreshCookie } = generateTokens(input.email);
+        const { token, refreshToken, cookieExpireDate, refreshCookie } = generateTokens({ mail: input.email });
 
         const user = await ctx.prisma.user.create({
           data: {
             name: input.name.charAt(0).toUpperCase() + input.name.slice(1).toLowerCase(),
             mail: input.email.toLowerCase(),
             role: 'user',
+            fromProvider: false,
             password: hashedPassword,
             sessions: {
               create: {
@@ -59,22 +61,22 @@ export const authRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       try {
         const existingUser = await ctx.prisma.user.update({
-          select: { mail: true, name: true, role: true, password: true },
+          select: { mail: true, name: true, role: true, password: true, fromProvider: true },
           data: {
             sessions: {
               deleteMany: { type: 'desktop' }
             }
           },
           where: { mail: input.email }
-        })
-        if (!existingUser) {
-          throw new TRPCError({ code: 'BAD_REQUEST', message: 'User with such email does not exist' });
+        });
+        if (existingUser.fromProvider) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: 'Login with previously used account provider' });
         }
         const passwordsEqual = await compare(input.password, existingUser.password || '');
         if (!passwordsEqual) {
           throw new TRPCError({ code: 'BAD_REQUEST', message: 'Password is incorrect' });
         }
-        const { token, refreshToken, cookieExpireDate, refreshCookie } = generateTokens(input.email);
+        const { token, refreshToken, cookieExpireDate, refreshCookie } = generateTokens({ mail: input.email });
         await ctx.prisma.user.update({
           data: {
             sessions: {
@@ -95,13 +97,82 @@ export const authRouter = createTRPCRouter({
         ctx.res.setHeader("set-cookie", refreshCookie)
         return { token, mail: existingUser.mail, name: existingUser.name, role: existingUser.role }
       } catch (err) {
+        if (err instanceof Prisma.PrismaClientKnownRequestError) {
+          if (err.code === 'P2025') {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: 'User with such email does not exist' });
+          }
+        }
+        throw err;
+      }
+    }),
+  loginGoogle: publicProcedure
+    .input(z.object({
+      accessToken: z.string(),
+      expiresIn: z.number(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const googleResponse = await fetch(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${input.accessToken}`, {
+          headers: {
+            Authorization: `Bearer ${input.accessToken}`,
+          }
+        }).then((data) => {
+          if (!data || !data.ok) {
+            throw new Error(data.statusText);
+          }
+          return data.json();
+        }) as TGoogleCredentials;
+
+        const expireDate = new Date(new Date().setSeconds(input.expiresIn));
+        const { token, refreshCookie } = generateTokens({
+          mail: googleResponse.email,
+          customToken: input.accessToken,
+          expireDate
+        });
+        const newSession = {
+          type: 'desktop',
+          tokenType: 'jwt',
+          provider: 'google',
+          refreshToken: input.accessToken,
+          expires: expireDate.toISOString(),
+        };
+
+        const user = await ctx.prisma.user.upsert({
+          create: {
+            name: googleResponse.name,
+            mail: googleResponse.email,
+            mailVerified: googleResponse.email_verified,
+            image: googleResponse.picture,
+            role: 'user',
+            fromProvider: true,
+            sessions: {
+              create: newSession
+            }
+          },
+          update: {
+            sessions: {
+              create: newSession
+            }
+          },
+          where: {
+            mail: googleResponse.email,
+          },
+          include: {
+            sessions: true,
+          },
+        });
+
+        ctx.res.setHeader("set-cookie", refreshCookie)
+        return { token, mail: user.mail, name: user.name, role: user.role }
+      } catch (err) {
         throw err;
       }
     }),
   logout: publicProcedure
     .mutation(async ({ ctx }) => {
       try {
-        const incomingToken = ctx.req.headers.authorization || ctx.req.cookies[refreshCookieName] || "";
+        const cookieToken = ctx.req.cookies[refreshCookieName];
+        const incomingToken = ctx.req.headers.authorization || cookieToken || "";
         if (incomingToken) {
           const decodedToken = verify(
             incomingToken,
@@ -112,7 +183,7 @@ export const authRouter = createTRPCRouter({
               select: { mail: true, name: true, role: true, password: true },
               data: {
                 sessions: {
-                  deleteMany: { refreshToken: incomingToken, type: 'desktop' }
+                  deleteMany: { refreshToken: cookieToken || incomingToken, type: 'desktop' }
                 }
               },
               where: { mail: decodedToken.mail }
@@ -125,60 +196,4 @@ export const authRouter = createTRPCRouter({
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'User with such email does not exist' });
       }
     }),
-  session: publicProcedure
-    .query(async ({ ctx }) => {
-      try {
-        const incomingToken = ctx.req.headers.authorization || ctx.req.cookies[refreshCookieName] || "";
-        if (!incomingToken) {
-          throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid token' });
-        }
-        const decodedToken = verify(
-          incomingToken,
-          env.JWT_SECRET
-        ) as { mail: string; type: string; };
-        if (decodedToken) {
-          const user = await ctx.prisma.user.update({
-            include: { sessions: true },
-            data: {
-              sessions: {
-                deleteMany: { refreshToken: incomingToken, type: decodedToken.type }
-              }
-            },
-            where: {
-              mail: decodedToken.mail,
-            }
-          });
-          if (user) {
-            const { token, refreshToken: newToken, cookieExpireDate, refreshCookie } = generateTokens(user.mail);
-            await ctx.prisma.user.update({
-              include: { sessions: true },
-              data: {
-                sessions: {
-                  create: {
-                    type: 'desktop',
-                    tokenType: 'jwt',
-                    provider: 'creds',
-                    refreshToken: newToken,
-                    expires: cookieExpireDate.toISOString(),
-                  }
-                }
-              },
-              where: {
-                mail: decodedToken.mail,
-              }
-            });
-
-            ctx.res.setHeader("set-cookie", refreshCookie);
-            return { token, mail: user.mail, name: user.name, role: user.role };
-          }
-        }
-      } catch (e) {
-        if (e instanceof TokenExpiredError) {
-          if (!ctx.req.headers.authorization && ctx.req.cookies[refreshCookieName]) {
-            ctx.res.setHeader("set-cookie", deletedCookie);
-          }
-        }
-        throw e;
-      }
-    })
 });

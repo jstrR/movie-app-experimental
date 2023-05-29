@@ -28,8 +28,10 @@ export default function MoviePage() {
   }, [onSelectMovieCategory]);
 
   useEffect(() => {
-    getMoviesGenres();
-  }, [getMoviesGenres]);
+    if (!genres) {
+      getMoviesGenres();
+    }
+  }, [genres, getMoviesGenres]);
 
   const loadingContent = moviesGenresLoading || !moviesList || !genres;
 

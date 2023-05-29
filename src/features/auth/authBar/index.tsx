@@ -14,7 +14,7 @@ export const AuthBar = () => {
 
   const [currentUser, logoutFn, getSessionFn] = useUnit([$currentUser, logout, getSession]);
 
-  const retreivedSession = trpc.auth.session.useQuery(undefined,
+  const retreivedSession = trpc.session.session.useQuery(undefined,
     {
       retry: false,
       refetchOnWindowFocus: false,
