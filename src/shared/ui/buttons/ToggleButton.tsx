@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React from "react";
 
 export const ToggleButton = ({
@@ -13,8 +13,22 @@ export const ToggleButton = ({
   checked: boolean;
 }) => (
   <div role="button">
-    <input onChange={onChange} type="radio" id={value} name="tabs" className="hidden" value={value} />
-    <label htmlFor={value} className={`transition duration-150 cursor-pointer flex items-center justify-center truncate uppercase select-none text-sm font-medium rounded-full p-4 py-2 ${checked ? "text-white bg-mainColor hover:bg-hoverColorBg" : "text-gray-500 bg-transparent border hover:text-gray-400"}`}>
+    <input
+      onChange={onChange}
+      type="radio"
+      id={value}
+      name="tabs"
+      className="hidden"
+      value={value}
+    />
+    <label
+      htmlFor={value}
+      className={`flex cursor-pointer select-none items-center justify-center truncate rounded-full p-4 py-2 text-sm font-medium uppercase transition duration-150 ${
+        checked
+          ? "bg-mainColor text-white hover:bg-hoverColorBg"
+          : "border bg-transparent text-gray-500 hover:text-gray-400"
+      }`}
+    >
       {label}
     </label>
   </div>

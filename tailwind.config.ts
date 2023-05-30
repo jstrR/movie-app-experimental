@@ -22,5 +22,6 @@ export default {
       }
     },
   },
+  tailwindAttributes: ['className'],
   plugins: [],
 } satisfies Config;

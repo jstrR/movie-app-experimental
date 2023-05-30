@@ -1,10 +1,10 @@
-"use client"
-import { useUnit } from 'effector-react';
-import { usePathname } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+"use client";
+import { useUnit } from "effector-react";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 
-import { $currentUser, logout, getSession } from '~/entities/user/model';
-import { trpc } from '~/providers/trpcClient';
+import { $currentUser, logout, getSession } from "~/entities/user/model";
+import { trpc } from "~/providers/trpcClient";
 
 import { ButtonNav, ButtonGeneric } from "~/shared/ui/buttons";
 
@@ -12,15 +12,18 @@ export const AuthBar = () => {
   const pathname = usePathname();
   const mounted = useRef(false);
 
-  const [currentUser, logoutFn, getSessionFn] = useUnit([$currentUser, logout, getSession]);
+  const [currentUser, logoutFn, getSessionFn] = useUnit([
+    $currentUser,
+    logout,
+    getSession,
+  ]);
 
-  const retreivedSession = trpc.session.session.useQuery(undefined,
-    {
-      retry: false,
-      refetchOnWindowFocus: false,
-      enabled: !currentUser && !mounted.current,
-      cacheTime: 0
-    });
+  const retreivedSession = trpc.session.session.useQuery(undefined, {
+    retry: false,
+    refetchOnWindowFocus: false,
+    enabled: !currentUser && !mounted.current,
+    cacheTime: 0,
+  });
 
   useEffect(() => {
     if (!currentUser && retreivedSession.data) {
@@ -37,16 +40,16 @@ export const AuthBar = () => {
       retreivedSession.remove();
       logoutFn();
     },
-    onError: e => {
+    onError: (e) => {
       console.log(e);
-    }
+    },
   });
 
   return (
     <>
       {currentUser ? (
         <>
-          <h3 className="text-2xl text-mainColor font-bold mb-4 sm:mb-0 text-center">
+          <h3 className="mb-4 text-center text-2xl font-bold text-mainColor sm:mb-0">
             {currentUser.name}
           </h3>
           <ButtonGeneric onClick={() => logoutMutation.mutate()}>
@@ -55,12 +58,10 @@ export const AuthBar = () => {
         </>
       ) : (
         <>
-          {pathname !== '/login' && (
-            <ButtonNav href="/login">
-              {"Log in".toLocaleUpperCase()}
-            </ButtonNav>
+          {pathname !== "/login" && (
+            <ButtonNav href="/login">{"Log in".toLocaleUpperCase()}</ButtonNav>
           )}
-          {pathname !== '/signup' && (
+          {pathname !== "/signup" && (
             <ButtonNav href="/signup">
               {"Sign up".toLocaleUpperCase()}
             </ButtonNav>

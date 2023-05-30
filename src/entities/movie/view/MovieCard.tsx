@@ -1,10 +1,10 @@
-import Image from 'next/image';
+import Image from "next/image";
 
 import { getImageUrl } from "~/entities/movie/api";
 import { type TMovieType, type TMovieGenre } from "~/entities/movie";
 
 type TMovieCard = TMovieType & {
-  genresList: TMovieGenre[]
+  genresList: TMovieGenre[];
 };
 
 export const MovieCard = ({
@@ -15,27 +15,42 @@ export const MovieCard = ({
   genresList,
 }: TMovieCard) => {
   const releaseDateFormatted = new Date(release_date);
-  const movieGenres = genresList.filter(genre => genre_ids?.includes(genre.id)).slice(0, 3).map(genre => genre.name).join(', ') || "";
+  const movieGenres =
+    genresList
+      .filter((genre) => genre_ids?.includes(genre.id))
+      .slice(0, 3)
+      .map((genre) => genre.name)
+      .join(", ") || "";
+
   return (
-    <div className="relative h-full flex flex-col justify-between">
+    <div className="relative flex h-full flex-col justify-between">
       <div>
-        <div className="relative w-full bg-white rounded-lg overflow-hidden sm:aspect-w-2 sm:aspect-h-1 lg:aspect-w-1 lg:aspect-h-1 h-96 sm:h-auto">
-          <Image src={getImageUrl(poster_path) || ""} alt={title} className="w-full object-center object-fill" width={230} height={400} />
+        <div className="sm:aspect-w-2 sm:aspect-h-1 lg:aspect-w-1 lg:aspect-h-1 relative h-96 w-full overflow-hidden rounded-lg bg-white sm:h-auto">
+          <Image
+            src={getImageUrl(poster_path) || ""}
+            alt={title}
+            className="w-full object-fill object-center"
+            width={230}
+            height={400}
+          />
         </div>
         {movieGenres && (
-          <h3 className="mt-4 text-sm text-gray-500">
-            {movieGenres}
-          </h3>
+          <h3 className="mt-4 text-sm text-gray-500">{movieGenres}</h3>
         )}
         <p className="text-base font-semibold text-gray-900">{title}</p>
       </div>
       <div>
         {releaseDateFormatted && (
           <h3 className="mt-2 text-sm text-gray-500">
-            {releaseDateFormatted.toLocaleDateString('en')}
+            {releaseDateFormatted.toLocaleDateString("en")}
           </h3>
         )}
-        <button disabled className="mt-2 w-full px-8 flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-mainColor hover:bg-hoverColorBg disabled:bg-gray-200 enabled:hover:cursor-pointer font-bold">View</button>
+        <button
+          disabled
+          className="mt-2 flex w-full items-center justify-center rounded-md border border-transparent bg-mainColor px-4 px-8 py-2 text-sm font-bold font-medium text-white shadow-sm hover:bg-hoverColorBg enabled:hover:cursor-pointer disabled:bg-gray-200"
+        >
+          View
+        </button>
       </div>
     </div>
   );

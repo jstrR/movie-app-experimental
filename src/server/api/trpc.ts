@@ -35,12 +35,9 @@ const createInnerTRPCContext = async (_opts: CreateNextContextOptions) => {
       if (_opts.req.headers.authorization) {
         const incomingToken = _opts.req.headers.authorization || "";
         if (incomingToken) {
-          const decodedToken = verify(
-            incomingToken,
-            env.JWT_SECRET
-          ) as { mail: string };
+          const decodedToken = verify(incomingToken, env.JWT_SECRET) as { mail: string; };
           if (decodedToken) {
-            const user = await prisma.user.findFirst({ where: { mail: decodedToken.mail } })
+            const user = await prisma.user.findFirst({ where: { mail: decodedToken.mail }, });
             return user;
           }
         }
@@ -49,14 +46,14 @@ const createInnerTRPCContext = async (_opts: CreateNextContextOptions) => {
     } catch (e) {
       throw e;
     }
-  }
+  };
 
   const user = await getUserFromHeader();
   return {
     prisma,
     user,
     req: _opts.req,
-    res: _opts.res
+    res: _opts.res,
   };
 };
 
@@ -99,7 +96,7 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
 const isAuthed = t.middleware((opts) => {
   const { ctx } = opts;
   if (!ctx.user) {
-    throw new TRPCError({ code: 'UNAUTHORIZED' });
+    throw new TRPCError({ code: "UNAUTHORIZED" });
   }
   return opts.next({
     ctx: {

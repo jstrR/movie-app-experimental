@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import superjson from "superjson";
-import { GoogleOAuthProvider } from '@react-oauth/google';
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import { $currentUser } from "~/entities/user/model";
 import type { AppRouter } from "~/server/api/root";
@@ -31,7 +31,9 @@ function getBaseUrl() {
     return `https://${process.env.VERCEL_URL}`;
   if (process.env.RENDER_INTERNAL_HOSTNAME)
     // reference for render.com
-    return `http://${process.env.RENDER_INTERNAL_HOSTNAME}:${process.env.PORT || ''}`;
+    return `http://${process.env.RENDER_INTERNAL_HOSTNAME}:${
+      process.env.PORT || ""
+    }`;
   // assume localhost
   return `http://localhost:${process.env.PORT ?? 3000}`;
 }
@@ -54,7 +56,7 @@ export function ClientProvider(props: { children: React.ReactNode }) {
         }),
       ],
       transformer: superjson,
-    }),
+    })
   );
 
   return (

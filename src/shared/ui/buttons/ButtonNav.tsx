@@ -1,10 +1,17 @@
 import React from "react";
-import Link from 'next/link'
+import Link from "next/link";
 
-export const ButtonNav = ({ href, children, ...props }: { href: string; children: React.ReactNode; }) => {
+export const ButtonNav = ({
+  href,
+  children,
+  ...props
+}: {
+  href: string;
+  children: React.ReactNode;
+}) => {
   return (
-    <Link href={href}  {...props}>
-      <div className="flex-shrink-0 w-full px-8 sm:order-2 sm:w-auto flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-mainColor hover:bg-hoverColorBg hover:cursor-pointer font-bold">
+    <Link href={href} {...props}>
+      <div className="flex w-full flex-shrink-0 items-center justify-center rounded-md border border-transparent bg-mainColor px-4 px-8 py-2 text-sm font-bold font-medium text-white shadow-sm hover:cursor-pointer hover:bg-hoverColorBg sm:order-2 sm:w-auto">
         {children}
       </div>
     </Link>

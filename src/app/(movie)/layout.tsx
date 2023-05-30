@@ -1,6 +1,6 @@
-import { ClientProvider } from '~/providers/trpcClient';
-import { Header } from '~/widgets/header';
-import { Footer } from '~/widgets/footer';
+import { ClientProvider } from "~/providers/trpcClient";
+import { Header } from "~/widgets/header";
+import { Footer } from "~/widgets/footer";
 
 export default function MovieLayout({
   children,
@@ -9,7 +9,7 @@ export default function MovieLayout({
   params: {
     tag: string;
     item: string;
-  }
+  };
 }) {
   // URL -> /shop/shoes/nike-air-max-97
   // `params` -> { tag: 'shoes', item: 'nike-air-max-97' }
@@ -19,5 +19,5 @@ export default function MovieLayout({
       <main className="flex min-h-[calc(100dvh-75px-64px)]">{children}</main>
       <Footer />
     </ClientProvider>
-  )
+  );
 }
