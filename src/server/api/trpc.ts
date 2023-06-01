@@ -44,7 +44,7 @@ const createInnerTRPCContext = async (_opts: CreateNextContextOptions) => {
       }
       return null;
     } catch (e) {
-      throw e;
+      return null;
     }
   };
 

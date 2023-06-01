@@ -1,13 +1,11 @@
 import { z } from "zod";
 import { hash, compare } from "bcryptjs"
 import { TRPCError } from "@trpc/server";
-import { verify } from "jsonwebtoken";
 import { Prisma } from "@prisma/client";
 
 import { PasswordValidation } from "~/entities/user";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, publicProcedure, protectedProcedure } from "~/server/api/trpc";
 import { generateTokens, deletedCookie, refreshCookieName, type TGoogleCredentials } from "~/shared/auth";
-import { env } from "~/env.mjs";
 
 export const authRouter = createTRPCRouter({
   signup: publicProcedure
@@ -124,16 +122,16 @@ export const authRouter = createTRPCRouter({
         }) as TGoogleCredentials;
 
         const expireDate = new Date(new Date().setSeconds(input.expiresIn));
-        const { token, refreshCookie } = generateTokens({
+        const { token, refreshToken, refreshCookie } = generateTokens({
           mail: googleResponse.email,
-          customToken: input.accessToken,
           expireDate
         });
         const newSession = {
           type: 'desktop',
           tokenType: 'jwt',
           provider: 'google',
-          refreshToken: input.accessToken,
+          providerToken: input.accessToken,
+          refreshToken: refreshToken,
           expires: expireDate.toISOString(),
         };
 
@@ -168,30 +166,22 @@ export const authRouter = createTRPCRouter({
         throw err;
       }
     }),
-  logout: publicProcedure
+  logout: protectedProcedure
     .mutation(async ({ ctx }) => {
       try {
         const cookieToken = ctx.req.cookies[refreshCookieName];
-        const incomingToken = ctx.req.headers.authorization || cookieToken || "";
-        if (incomingToken) {
-          const decodedToken = verify(
-            incomingToken,
-            env.JWT_SECRET
-          ) as { mail: string; type: string; };
-          if (decodedToken) {
-            await ctx.prisma.user.update({
-              select: { mail: true, name: true, role: true, password: true },
-              data: {
-                sessions: {
-                  deleteMany: { refreshToken: cookieToken || incomingToken, type: 'desktop' }
-                }
-              },
-              where: { mail: decodedToken.mail }
-            });
-            ctx.res.setHeader("set-cookie", deletedCookie);
-            return 204;
-          }
-        }
+        const incomingToken = ctx.req.headers.authorization || "";
+        await ctx.prisma.user.update({
+          select: { mail: true, name: true, role: true, password: true },
+          data: {
+            sessions: {
+              deleteMany: { refreshToken: cookieToken || incomingToken, type: 'desktop' }
+            }
+          },
+          where: { mail: ctx.user.mail }
+        });
+        ctx.res.setHeader("set-cookie", deletedCookie);
+        return 204;
       } catch (e) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'User with such email does not exist' });
       }

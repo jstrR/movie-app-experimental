@@ -1,6 +1,9 @@
 import "./globals.css";
 import { EffectorNext } from "@effector/next";
 
+import { ClientProvider } from "~/providers/trpcClient";
+import { Header } from "~/widgets/header";
+
 export const metadata = {
   title: "Movie-App-experimental",
   description:
@@ -16,7 +19,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body className="h-full">
-        <EffectorNext>{children}</EffectorNext>
+        <EffectorNext>
+          <ClientProvider>
+            <Header />
+            {children}
+          </ClientProvider>
+        </EffectorNext>
       </body>
     </html>
   );

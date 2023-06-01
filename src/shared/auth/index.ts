@@ -34,7 +34,7 @@ export const generateTokens = ({
     }
   );
   const refreshToken = sign({ mail, type: 'desktop' }, env.JWT_SECRET, {
-    expiresIn: "1m",
+    expiresIn: "30d",
   })
   const refreshCookie = `${refreshCookieName}=${customToken || refreshToken}; Expires=${(expireDate || cookieExpireDate).toString()}; Path=/; HttpOnly; Secure; SameSite=Strict;`;
   return { token, refreshToken, tokenMaxAge, refreshCookie, cookieExpireDate }

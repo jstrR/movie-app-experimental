@@ -21,15 +21,17 @@ export const AuthBar = () => {
   const retreivedSession = trpc.session.session.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: false,
-    enabled: !currentUser && !mounted.current,
+    enabled: !mounted.current,
     cacheTime: 0,
+    onSuccess: (data) => {
+      getSessionFn(data);
+    },
+    onError: (err) => {
+      if (err.data?.code === "UNAUTHORIZED") {
+        logoutFn();
+      }
+    },
   });
-
-  useEffect(() => {
-    if (!currentUser && retreivedSession.data) {
-      getSessionFn(retreivedSession.data);
-    }
-  }, [currentUser, getSessionFn, retreivedSession.data]);
 
   useEffect(() => {
     mounted.current = true;
@@ -37,13 +39,16 @@ export const AuthBar = () => {
 
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => {
-      retreivedSession.remove();
       logoutFn();
     },
     onError: (e) => {
       console.log(e);
     },
   });
+
+  if (retreivedSession.isLoading) {
+    return null;
+  }
 
   return (
     <>

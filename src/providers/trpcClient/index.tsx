@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useUnit } from "effector-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, loggerLink } from "@trpc/client";
@@ -38,26 +38,34 @@ function getBaseUrl() {
   return `http://localhost:${process.env.PORT ?? 3000}`;
 }
 
+const createTrpcClient = (userToken?: string) => {
+  return trpc.createClient({
+    links: [
+      loggerLink({
+        enabled: () => process.env.NODE_ENV !== "production",
+      }),
+      httpBatchLink({
+        url: `${getBaseUrl()}/api/trpc`,
+        headers() {
+          return userToken ? { Authorization: userToken } : {};
+        },
+      }),
+    ],
+    transformer: superjson,
+  });
+};
+
 export function ClientProvider(props: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
   const currentUser = useUnit($currentUser);
 
-  const [trpcClient] = useState(() =>
-    trpc.createClient({
-      links: [
-        loggerLink({
-          enabled: () => true,
-        }),
-        httpBatchLink({
-          url: `${getBaseUrl()}/api/trpc`,
-          headers() {
-            return currentUser ? { Authorization: currentUser.token } : {};
-          },
-        }),
-      ],
-      transformer: superjson,
-    })
-  );
+  const [trpcClient, setTrpcClient] = useState(() => createTrpcClient());
+
+  useEffect(() => {
+    if (currentUser?.token) {
+      setTrpcClient(createTrpcClient(currentUser?.token));
+    }
+  }, [currentUser?.token]);
 
   return (
     <GoogleOAuthProvider clientId={env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>

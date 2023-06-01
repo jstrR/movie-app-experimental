@@ -9,12 +9,12 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 - [Tailwind CSS](https://tailwindcss.com)
 - [tRPC](https://trpc.io)
 - [Effector](https://effector.dev/)
-- [FSD (like))](https://feature-sliced.design/)
+- [FSD (like)](https://feature-sliced.design/)
 
 ## CURRENT TO DO LIST:
 
 - [x] Add Google OAuth
-- [ ] Fix session recovery after page refresh
+- [x] Fix session recovery after page refresh
 - [ ] Add movie details page
 - [ ] Add dark theme
 - [ ] Update missing accessibility
