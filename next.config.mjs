@@ -17,26 +17,11 @@ const config = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'image.tmdb.org',
-        port: '',
+        protocol: "https",
+        hostname: "image.tmdb.org",
+        port: "",
       },
     ],
-  },
-  async redirects() {
-    return [
-      {
-        source: '/(signup|login)',
-        has: [
-          {
-            type: 'cookie',
-            key: 'movie-app-refresh-token',
-          },
-        ],
-        permanent: true,
-        destination: '/',
-      },
-    ];
   },
 };
 export default config;

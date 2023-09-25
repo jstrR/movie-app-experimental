@@ -15,7 +15,7 @@ export const ButtonGoogle = ({
       onClick={onClick}
       className={`${
         className || ""
-      } inline-flex items-center rounded-md border border-transparent bg-mainColor px-5 py-2 text-center text-sm text-white hover:cursor-pointer hover:bg-hoverColorBg`}
+      } inline-flex items-center rounded-md border border-transparent bg-main px-5 py-2 text-center text-sm text-white hover:cursor-pointer hover:bg-hoverMain dark:bg-mainDark dark:hover:bg-hoverMainDark`}
     >
       <svg
         className="-ml-1 mr-2 h-4 w-4"

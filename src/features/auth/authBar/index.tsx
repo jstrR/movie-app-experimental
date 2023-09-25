@@ -18,20 +18,20 @@ export const AuthBar = () => {
     getSession,
   ]);
 
-  const retreivedSession = trpc.session.session.useQuery(undefined, {
-    retry: false,
-    refetchOnWindowFocus: false,
-    enabled: !mounted.current,
-    cacheTime: 0,
-    onSuccess: (data) => {
-      getSessionFn(data);
-    },
-    onError: (err) => {
-      if (err.data?.code === "UNAUTHORIZED") {
-        logoutFn();
-      }
-    },
-  });
+  // const retreivedSession = trpc.session.session.useQuery(undefined, {
+  //   retry: false,
+  //   refetchOnWindowFocus: false,
+  //   enabled: !mounted.current,
+  //   cacheTime: 0,
+  //   onSuccess: (data) => {
+  //     getSessionFn(data);
+  //   },
+  //   onError: (err) => {
+  //     if (err.data?.code === "UNAUTHORIZED") {
+  //       logoutFn();
+  //     }
+  //   },
+  // });
 
   useEffect(() => {
     mounted.current = true;
@@ -46,15 +46,15 @@ export const AuthBar = () => {
     },
   });
 
-  if (retreivedSession.isLoading) {
-    return null;
-  }
+  // if (retreivedSession.isLoading) {
+  //   return null;
+  // }
 
   return (
     <>
       {currentUser ? (
         <>
-          <h3 className="mb-4 text-center text-2xl font-bold text-mainColor sm:mb-0">
+          <h3 className="mb-4 text-center text-2xl font-bold text-main dark:text-mainDark sm:mb-0">
             {currentUser.name}
           </h3>
           <ButtonGeneric onClick={() => logoutMutation.mutate()}>

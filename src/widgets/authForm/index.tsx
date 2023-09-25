@@ -5,7 +5,7 @@ export const AuthForm = ({ children }: { children: React.ReactNode }) => {
         {children}
       </div>
       <div className="flex grow-[1] flex-col justify-end">
-        <h2 className="mb-4 flex justify-end text-xl font-bold text-mainColor">
+        <h2 className="mb-4 flex justify-end text-xl font-bold text-main dark:text-mainDark">
           Copyright © Movie-App {new Date().getFullYear()}
         </h2>
       </div>

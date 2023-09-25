@@ -63,7 +63,7 @@ export const SignupForm = () => {
       >
         <input
           type="text"
-          className="w-5/6 rounded border-2 px-2 py-1 placeholder:text-base placeholder:italic placeholder:text-slate-400 sm:w-3/5"
+          className="w-5/6 rounded border-2 px-2 py-1 text-main placeholder:text-base placeholder:italic placeholder:text-slate-400 dark:text-mainDark sm:w-3/5"
           placeholder="Name"
           aria-label="Name"
           name="userName"
@@ -73,7 +73,7 @@ export const SignupForm = () => {
         />
         <input
           type="email"
-          className="w-5/6 rounded border-2 px-2 py-1 placeholder:text-base placeholder:italic placeholder:text-slate-400 sm:w-3/5"
+          className="w-5/6 rounded border-2 px-2 py-1 text-main placeholder:text-base placeholder:italic placeholder:text-slate-400 dark:text-mainDark sm:w-3/5"
           placeholder="Email"
           aria-label="Email"
           name="userMail"
@@ -83,7 +83,7 @@ export const SignupForm = () => {
         />
         <input
           type="password"
-          className="w-5/6 rounded border-2 px-2 py-1 placeholder:text-base placeholder:italic placeholder:text-slate-400 sm:w-3/5"
+          className="w-5/6 rounded border-2 px-2 py-1 text-main placeholder:text-base placeholder:italic placeholder:text-slate-400 dark:text-mainDark sm:w-3/5"
           placeholder="Password"
           aria-label="Password"
           name="userPassword"
@@ -93,7 +93,7 @@ export const SignupForm = () => {
         />
         <input
           type="password"
-          className="w-5/6 rounded border-2 px-2 py-1 placeholder:text-base placeholder:italic placeholder:text-slate-400 sm:w-3/5"
+          className="w-5/6 rounded border-2 px-2 py-1 text-main placeholder:text-base placeholder:italic placeholder:text-slate-400 dark:text-mainDark sm:w-3/5"
           placeholder="Repeat password"
           aria-label="Repeat password"
           name="userRepPassword"
@@ -104,7 +104,7 @@ export const SignupForm = () => {
         <button
           disabled={isSubmitDisabled}
           aria-disabled={isSubmitDisabled}
-          className="mt-2 flex w-5/6 items-center justify-center rounded border-2 border-rose-600 px-10 py-1 text-xl text-rose-600 hover:border-rose-400 hover:text-rose-400 disabled:border-rose-300 disabled:text-rose-300 sm:w-3/5"
+          className="mt-2 flex w-5/6 items-center justify-center rounded-md border-4 border-rose-600 px-10 py-2 text-xl text-rose-600 hover:border-rose-400 hover:text-rose-400 disabled:border-rose-300 disabled:text-rose-300 dark:border-rose-400 dark:text-rose-400 dark:hover:border-rose-300 dark:hover:text-rose-300 sm:w-3/5"
           type="submit"
         >
           Sign Up!

@@ -18,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full">
-      <body className="h-full">
+      <body className="h-full bg-mainBg dark:bg-mainBgDark">
         <EffectorNext>
           <ClientProvider>
             <Header />

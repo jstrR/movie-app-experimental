@@ -37,17 +37,19 @@ export const MovieCard = ({
         {movieGenres && (
           <h3 className="mt-4 text-sm text-gray-500">{movieGenres}</h3>
         )}
-        <p className="text-base font-semibold text-gray-900">{title}</p>
+        <p className="text-base font-semibold text-gray-900 dark:text-mainDark">
+          {title}
+        </p>
       </div>
       <div>
         {releaseDateFormatted && (
-          <h3 className="mt-2 text-sm text-gray-500">
+          <h3 className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             {releaseDateFormatted.toLocaleDateString("en")}
           </h3>
         )}
         <button
           disabled
-          className="mt-2 flex w-full items-center justify-center rounded-md border border-transparent bg-mainColor px-4 px-8 py-2 text-sm font-bold font-medium text-white shadow-sm hover:bg-hoverColorBg enabled:hover:cursor-pointer disabled:bg-gray-200"
+          className="mt-2 flex w-full items-center justify-center rounded-md border border-transparent bg-main px-4 px-8 py-2 text-sm font-bold font-medium text-white shadow-sm hover:bg-hoverMain enabled:hover:cursor-pointer disabled:bg-gray-200 dark:bg-mainDark dark:hover:bg-hoverMainDark dark:disabled:bg-disabledDark"
         >
           View
         </button>

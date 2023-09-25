@@ -16,7 +16,7 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 - [x] Add Google OAuth
 - [x] Fix session recovery after page refresh
 - [ ] Add movie details page
-- [ ] Add dark theme
+- [x] Add dark theme
 - [ ] Update missing accessibility
 - [ ] Fix Google OAuth token expire
 - [ ] Add profile page
