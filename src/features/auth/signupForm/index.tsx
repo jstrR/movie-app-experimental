@@ -104,7 +104,7 @@ export const SignupForm = () => {
         <button
           disabled={isSubmitDisabled}
           aria-disabled={isSubmitDisabled}
-          className="mt-2 flex w-5/6 items-center justify-center rounded-md border-4 border-rose-600 px-10 py-2 text-xl text-rose-600 hover:border-rose-400 hover:text-rose-400 disabled:border-rose-300 disabled:text-rose-300 dark:border-rose-400 dark:text-rose-400 dark:hover:border-rose-300 dark:hover:text-rose-300 sm:w-3/5"
+          className="mt-2 flex w-5/6 items-center justify-center rounded-md border-4 border-rose-600 px-10 py-2 text-xl text-rose-600 hover:border-rose-400 hover:text-rose-400 disabled:border-rose-300 disabled:text-rose-200 dark:border-rose-300 dark:text-rose-300 dark:hover:border-rose-200 dark:hover:text-rose-200 dark:disabled:border-rose-200 dark:disabled:text-rose-200 sm:w-3/5"
           type="submit"
         >
           Sign Up!

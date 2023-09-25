@@ -35,9 +35,11 @@ export const MovieCard = ({
           />
         </div>
         {movieGenres && (
-          <h3 className="mt-4 text-sm text-gray-500">{movieGenres}</h3>
+          <h3 className="mt-4 text-sm font-semibold text-main dark:text-mainDark">
+            {movieGenres}
+          </h3>
         )}
-        <p className="text-base font-semibold text-gray-900 dark:text-mainDark">
+        <p className="text-base font-bold text-rose-500 dark:text-rose-300">
           {title}
         </p>
       </div>
