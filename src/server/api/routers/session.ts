@@ -1,14 +1,16 @@
 import { TRPCError } from "@trpc/server";
 import { TokenExpiredError, verify } from "jsonwebtoken";
 import { Prisma } from "@prisma/client";
+import { z } from "zod";
 
+import { prisma } from "~/server/db";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { env } from "~/env.mjs";
 import { generateTokens, deletedCookie, refreshCookieName } from "~/shared/auth";
 import type { TGenerateToken, TDecodedToken } from "~/shared/auth/types";
 
-const refreshToken = async ({ ctx, decodedToken, incomingToken }: TGenerateToken) => {
-  const user = await ctx.prisma.user.update({
+const refreshToken = async ({ decodedToken, incomingToken }: TGenerateToken) => {
+  const user = await prisma.user.update({
     include: { sessions: true },
     data: {
       sessions: {
@@ -20,7 +22,7 @@ const refreshToken = async ({ ctx, decodedToken, incomingToken }: TGenerateToken
     }
   });
   const { token, refreshToken: newToken, cookieExpireDate, refreshCookie } = generateTokens({ mail: user.mail });
-  await ctx.prisma.user.update({
+  await prisma.user.update({
     include: { sessions: true },
     data: {
       sessions: {
@@ -40,17 +42,21 @@ const refreshToken = async ({ ctx, decodedToken, incomingToken }: TGenerateToken
   return { token, user, refreshCookie };
 }
 
-const generateNewTokenFromOld = async ({ ctx, incomingToken }: Omit<TGenerateToken, "decodedToken">) => {
+export const getSession = async (incomingToken: string) => {
   const decodedToken = verify(
     incomingToken,
     env.JWT_SECRET
   ) as TDecodedToken;
 
-  return await refreshToken({ ctx, decodedToken, incomingToken });
-}
+  return await refreshToken({ decodedToken, incomingToken });
+};
 
 export const sessionRouter = createTRPCRouter({
-  session: publicProcedure
+  getSessionSsr: publicProcedure.input(z.object({ token: z.string().trim() })).query(async (opts) => {
+    const { token, user, refreshCookie } = await getSession(opts.input.token);
+    return { token, user, refreshCookie };
+  }),
+  getSession: publicProcedure
     .query(async ({ ctx }) => {
       if (!ctx.req.headers.authorization && !ctx.req.cookies[refreshCookieName]) {
         throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Missing token' });
@@ -58,7 +64,7 @@ export const sessionRouter = createTRPCRouter({
       try {
         try {
           const incomingToken = ctx.req.headers.authorization || ctx.req.cookies[refreshCookieName] || "";
-          const { token, user, refreshCookie } = await generateNewTokenFromOld({ ctx, incomingToken });
+          const { token, user, refreshCookie } = await getSession(incomingToken);
 
           ctx.res.setHeader("set-cookie", refreshCookie);
           return { token, mail: user.mail, name: user.name, role: user.role };
@@ -66,7 +72,7 @@ export const sessionRouter = createTRPCRouter({
           if (e instanceof TokenExpiredError) {
             if (ctx.req.headers.authorization) {
               const { token, user, refreshCookie } =
-                await generateNewTokenFromOld({ ctx, incomingToken: ctx.req.cookies[refreshCookieName] || "" });
+                await getSession(ctx.req.cookies[refreshCookieName] || "");
               ctx.res.setHeader("set-cookie", refreshCookie);
               return { token, mail: user.mail, name: user.name, role: user.role };
             } else {

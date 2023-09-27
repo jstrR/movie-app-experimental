@@ -3,35 +3,28 @@ import { useUnit } from "effector-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 
-import { $currentUser, logout, getSession } from "~/entities/user/model";
+import { $currentUser, logout, setUser } from "~/entities/user/model";
+import type { TUser } from "~/entities/user/types";
 import { trpc } from "~/providers/trpcClient";
 
 import { ButtonNav, ButtonGeneric } from "~/shared/ui/buttons";
 
-export const AuthBar = () => {
+export const AuthBar = ({ user }: { user?: TUser }) => {
   const pathname = usePathname();
   const mounted = useRef(false);
 
-  const [currentUser, logoutFn, getSessionFn] = useUnit([
+  const [currentUser, logoutFn, setUserFn] = useUnit([
     $currentUser,
     logout,
-    getSession,
+    setUser,
   ]);
 
-  // const retreivedSession = trpc.session.session.useQuery(undefined, {
-  //   retry: false,
-  //   refetchOnWindowFocus: false,
-  //   enabled: !mounted.current,
-  //   cacheTime: 0,
-  //   onSuccess: (data) => {
-  //     getSessionFn(data);
-  //   },
-  //   onError: (err) => {
-  //     if (err.data?.code === "UNAUTHORIZED") {
-  //       logoutFn();
-  //     }
-  //   },
-  // });
+  useEffect(() => {
+    // initial render
+    if (user && !currentUser && !mounted.current) {
+      setUserFn(user);
+    }
+  }, [setUserFn, user, currentUser]);
 
   useEffect(() => {
     mounted.current = true;
@@ -46,9 +39,9 @@ export const AuthBar = () => {
     },
   });
 
-  // if (retreivedSession.isLoading) {
-  //   return null;
-  // }
+  if (!currentUser && user && !mounted.current) {
+    return null;
+  }
 
   return (
     <>

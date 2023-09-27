@@ -14,7 +14,6 @@ export type TDecodedToken = {
 };
 
 export type TGenerateToken = {
-  ctx: TContext;
   decodedToken: TDecodedToken;
   incomingToken: string;
 }
