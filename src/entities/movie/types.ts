@@ -87,9 +87,6 @@ export type TMovieCategory = {
 
 export type TMovieCategoryNext = {
   page: number;
-  category: TMovieCategory["value"];
+  type: TMovieCategory["value"] | 'search';
+  query: string;
 }
-
-export type TMovieSectionResponse = TMoviesReponse & {
-  type: TMovieCategory["value"];
-};

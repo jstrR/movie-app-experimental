@@ -9,10 +9,13 @@ import {
   $moviesList,
   $moviesGenres,
   selectMovieCategory,
+  $movieCategory,
   loadMoviesGenres,
   MoviesCategories,
   $moviesGenresLoading,
   loadNextMovies,
+  $movieSearchQuery,
+  loadMovies,
 } from "~/entities/movie/model";
 import { MovieCard } from "~/entities/movie/view";
 import { Loader } from "~/shared/ui/loader";
@@ -20,13 +23,19 @@ import { Loader } from "~/shared/ui/loader";
 export default function MoviePage() {
   const [
     moviesList,
+    moviesListQuery,
     genres,
+    movieCategory,
+    getMovies,
     onSelectMovieCategory,
     getMoviesGenres,
     getNextMovies,
   ] = useUnit([
     $moviesList,
+    $movieSearchQuery,
     $moviesGenres,
+    $movieCategory,
+    loadMovies,
     selectMovieCategory,
     loadMoviesGenres,
     loadNextMovies,
@@ -34,8 +43,11 @@ export default function MoviePage() {
   const [moviesGenresLoading] = useUnit([$moviesGenresLoading]);
 
   useEffect(() => {
-    onSelectMovieCategory(MoviesCategories[0]);
-  }, [onSelectMovieCategory]);
+    if (!moviesListQuery) {
+      onSelectMovieCategory(MoviesCategories[0]);
+      getMovies(MoviesCategories[0]);
+    }
+  }, [getMovies, moviesListQuery, onSelectMovieCategory]);
 
   useEffect(() => {
     if (!genres) {
@@ -47,7 +59,7 @@ export default function MoviePage() {
 
   return (
     <div className="container mx-auto flex w-3/4 flex-col items-center p-4 pt-0 sm:w-5/6 lg:w-2/3">
-      <MovieCategories />
+      <MovieCategories disabled={!!moviesListQuery} />
       {loadingContent ? (
         <section className="flex h-full items-center justify-center">
           <Loader wrapperClasses="mb-16" classes="w-16 h-16" />
@@ -58,10 +70,13 @@ export default function MoviePage() {
           next={() =>
             getNextMovies({
               page: moviesList.page + 1,
-              category: moviesList.type,
+              type: moviesListQuery
+                ? "search"
+                : movieCategory?.value || "current",
+              query: moviesListQuery || "",
             })
           }
-          hasMore={moviesList.results.length <= moviesList.total_results}
+          hasMore={moviesList.page < moviesList.total_pages}
           loader={
             <Loader
               wrapperClasses="flex justify-center my-16"

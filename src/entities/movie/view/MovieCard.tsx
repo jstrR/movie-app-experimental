@@ -28,7 +28,7 @@ export const MovieCard = ({
         <div className="sm:aspect-w-2 sm:aspect-h-1 lg:aspect-w-1 lg:aspect-h-1 relative h-96 w-full overflow-hidden rounded-lg bg-white sm:h-auto">
           <Image
             src={getImageUrl(poster_path) || ""}
-            alt={title}
+            alt={title || "movie title"}
             className="w-full object-fill object-center"
             width={230}
             height={400}
@@ -44,7 +44,7 @@ export const MovieCard = ({
         </p>
       </div>
       <div>
-        {releaseDateFormatted && (
+        {release_date && releaseDateFormatted && (
           <h3 className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             {releaseDateFormatted.toLocaleDateString("en")}
           </h3>

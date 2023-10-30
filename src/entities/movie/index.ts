@@ -1,1 +1,1 @@
-export { type TMovieType, type TMovieGenre, type TMoviesReponse, type TMovieSectionResponse } from "./types"
+export { type TMovieType, type TMovieGenre, type TMoviesReponse } from "./types"

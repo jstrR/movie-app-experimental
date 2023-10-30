@@ -1,30 +1,35 @@
 import { env } from "~/env.mjs";
-import { type TMoviesReponse, type TMovieSectionResponse, type TMovieGenresResponse, type TMovieGenre } from "./types";
+import {
+  type TMoviesReponse,
+  type TMovieGenresResponse,
+  type TMovieGenre,
+} from "./types";
 
 type TMovieDataResp = {
-  [key: string]: unknown
-  errors?: { message: string }[]
-}
+  [key: string]: unknown;
+  errors?: { message: string }[];
+};
 
 const makeRequest = (
   url: string,
   params?: string,
   body?: BodyInit,
-  method = 'GET',
+  method = "GET"
 ) =>
   fetch(
-    `${env.NEXT_PUBLIC_API_URL}/${url}?api_key=${env.NEXT_PUBLIC_MOVIE_API_KEY}${params ? `&${params}` : ''
-    }`,
+    `${env.NEXT_PUBLIC_API_URL}/${url}?api_key=${
+      env.NEXT_PUBLIC_MOVIE_API_KEY
+    }${params ? `&${params}` : ""}`,
     {
       method,
       headers: {
-        'Content-Type': 'application/json;charset=utf-8',
-        Accept: 'application/json',
+        "Content-Type": "application/json;charset=utf-8",
+        Accept: "application/json",
       },
       ...(body && { body }),
-    },
+    }
   )
-    .then(response => {
+    .then((response) => {
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -32,7 +37,7 @@ const makeRequest = (
     })
     .then((data: TMovieDataResp | TMovieGenresResponse) => {
       if ("errors" in data) {
-        throw new Error(data.errors?.[0]?.message || "Invalid request error")
+        throw new Error(data.errors?.[0]?.message || "Invalid request error");
       }
       return data;
     })
@@ -40,52 +45,53 @@ const makeRequest = (
       throw error;
     });
 
-export const getCurrentMovies = async (
-  page = 1,
-): Promise<TMovieSectionResponse> => {
-  const resp = await makeRequest(
-    'movie/now_playing',
-    `page=${page}`,
-  ) as TMoviesReponse;
-  return { ...resp, type: 'current' };
+export const getCurrentMovies = async (page = 1): Promise<TMoviesReponse> => {
+  const resp = (await makeRequest(
+    "movie/now_playing",
+    `page=${page}`
+  )) as TMoviesReponse;
+  return { ...resp };
 };
 
-export const getPopularMovies = async (
-  page = 1,
-): Promise<TMovieSectionResponse> => {
-  const resp = await makeRequest(
-    'movie/popular',
-    `page=${page}`,
-  ) as TMoviesReponse;
-  return { ...resp, type: 'popular' };
+export const getPopularMovies = async (page = 1): Promise<TMoviesReponse> => {
+  const resp = (await makeRequest(
+    "movie/popular",
+    `page=${page}`
+  )) as TMoviesReponse;
+  return { ...resp };
 };
 
-export const getTopRatedMovies = async (
-  page = 1,
-): Promise<TMovieSectionResponse> => {
-  const resp = await makeRequest(
-    'movie/top_rated',
-    `page=${page}`,
-  ) as TMoviesReponse;
-  return { ...resp, type: 'topRated' };
+export const getTopRatedMovies = async (page = 1): Promise<TMoviesReponse> => {
+  const resp = (await makeRequest(
+    "movie/top_rated",
+    `page=${page}`
+  )) as TMoviesReponse;
+  return { ...resp };
 };
 
-export const getUpcomingMovies = async (
-  page = 1,
-): Promise<TMovieSectionResponse> => {
-  const resp = await makeRequest(
-    'movie/upcoming',
-    `page=${page}`,
-  ) as TMoviesReponse;
-  return { ...resp, type: 'upcoming' };
+export const getUpcomingMovies = async (page = 1): Promise<TMoviesReponse> => {
+  const resp = (await makeRequest(
+    "movie/upcoming",
+    `page=${page}`
+  )) as TMoviesReponse;
+  return { ...resp };
 };
 
 export const getMoviesGenres = async (): Promise<TMovieGenre[]> => {
-  const resp = await makeRequest(
-    '/genre/movie/list'
-  ) as TMovieGenresResponse;
+  const resp = (await makeRequest("/genre/movie/list")) as TMovieGenresResponse;
   return resp.genres;
 };
 
-export const getImageUrl = (path = '', width = 'w500') =>
+export const requestMovies = async (
+  query = "",
+  page = 1
+): Promise<TMoviesReponse> => {
+  const resp = (await makeRequest(
+    "search/collection",
+    query ? `query=${query}&page=${page}` : undefined
+  )) as TMoviesReponse;
+  return resp;
+};
+
+export const getImageUrl = (path = "", width = "w500") =>
   `https://image.tmdb.org/t/p/${width}${path}`;
