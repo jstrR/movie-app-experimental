@@ -1,26 +1,36 @@
 "use client";
 import { useUnit } from "effector-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-import { searchMovies } from "~/entities/movie/model";
 import { SearchInput } from "~/shared/ui/searchInput";
 
+import { $moviesSearchQuery, setMoviesSearchQuery } from "./model";
+
 export const MovieSearch = () => {
-  const [debouncedValue, setDebouncedValue] = useState("");
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [loadMovies] = useUnit([searchMovies]);
-
-  const handleChange = (query: string) => {
-    setDebouncedValue(query);
-  };
+  const [moviesSearchQuery, setSearchQuery] = useUnit([
+    $moviesSearchQuery,
+    setMoviesSearchQuery,
+  ]);
 
   useEffect(() => {
-    if (!debouncedValue) {
-      loadMovies("");
+    if (!moviesSearchQuery) {
+      return router.push("/");
     }
-    const timer = setTimeout(() => loadMovies(debouncedValue), 600);
-    return () => clearTimeout(timer);
-  }, [debouncedValue, loadMovies]);
 
-  return <SearchInput onChange={handleChange} />;
+    const timer = setTimeout(
+      () => router.push(`/?search=${moviesSearchQuery}`),
+      600
+    );
+    return () => clearTimeout(timer);
+  }, [moviesSearchQuery, router]);
+
+  useEffect(() => {
+    setSearchQuery(searchParams?.get("search") || "");
+  }, [searchParams, setSearchQuery]);
+
+  return <SearchInput onChange={setSearchQuery} />;
 };

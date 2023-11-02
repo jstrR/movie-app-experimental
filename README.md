@@ -20,4 +20,4 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 - [ ] Update missing accessibility
 - [ ] Fix Google OAuth token expire
 - [ ] Add profile page
-- [ ] Add search bar
+- [x] Add search bar
