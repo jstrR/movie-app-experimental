@@ -13,6 +13,7 @@ export const MovieCard = ({
   poster_path,
   release_date,
   genresList,
+  name,
 }: TMovieCard) => {
   const releaseDateFormatted = new Date(release_date);
   const movieGenres =
@@ -40,7 +41,7 @@ export const MovieCard = ({
           </h3>
         )}
         <p className="text-base font-bold text-rose-500 dark:text-rose-300">
-          {title}
+          {title || name}
         </p>
       </div>
       <div>

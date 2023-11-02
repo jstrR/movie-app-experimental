@@ -13,6 +13,7 @@ export type TMovieType = {
   video: boolean;
   vote_average: number;
   vote_count: number;
+  name: string;
 };
 
 export type TMovieGenre = {
@@ -79,14 +80,3 @@ export type TMoviesReponse = {
 export type TMovieGenresResponse = {
   genres: TMovieGenre[];
 };
-
-export type TMovieCategory = {
-  value: 'popular' | 'upcoming' | 'current' | 'topRated';
-  label: string;
-};
-
-export type TMovieCategoryNext = {
-  page: number;
-  type: TMovieCategory["value"] | 'search';
-  query: string;
-}

@@ -1,20 +1,15 @@
 import { createEffect, createStore, createEvent, split, sample, combine } from 'effector';
 
 import { getCurrentMovies, getMoviesGenres, getPopularMovies, getTopRatedMovies, getUpcomingMovies } from './api';
-import type { TMoviesReponse, TMovieGenre, TMovieCategory, TMovieCategoryNext } from './types';
+import type { TMoviesReponse, TMovieGenre } from './types';
 
 import { searchMoviesFx } from '~/features/movies/movieSearch/model';
+import { $movieCategory, MoviesCategories } from '~/features/movies/movieCategories/model';
+import type { TMovieCategoryNext, TMovieCategory } from '~/features/movies/movieCategories/types';
 
 const concatStoreResults = (prevStore: TMoviesReponse, nextStore: TMoviesReponse) => (
   { ...prevStore, results: prevStore.results.concat(nextStore.results), page: nextStore.page }
 );
-
-export const MoviesCategories = [
-  { value: "current", label: "Now playing", visible: true },
-  { value: "upcoming", label: "Upcoming", visible: true },
-  { value: "popular", label: "Popular", visible: true },
-  { value: "topRated", label: "Top rated", visible: true },
-] as const;
 
 export const getCurrentMoviesFx = createEffect((store: TMovieCategoryNext) => getCurrentMovies(store?.page));
 export const getUpcomingMoviesFx = createEffect((store: TMovieCategoryNext) => getUpcomingMovies(store?.page));
@@ -23,11 +18,6 @@ export const getTopRatedMoviesFx = createEffect((store: TMovieCategoryNext) => g
 
 export const loadMovies = createEvent<TMovieCategory>();
 export const loadNextMovies = createEvent<TMovieCategoryNext>();
-export const selectMovieCategory = createEvent<TMovieCategory>();
-
-export const $movieCategory = createStore<TMovieCategory | null>(null).on(
-  selectMovieCategory, (_, result) => result,
-);
 
 export const $moviesList = createStore<TMoviesReponse | null>(null)
   .on(getCurrentMoviesFx.doneData, (store, data) => store && data.page !== 1 ? concatStoreResults(store, data) : data)
@@ -84,3 +74,5 @@ sample({
   clock: loadMoviesGenres,
   target: getMoviesGenresFx
 });
+export { $movieCategory, MoviesCategories };
+

@@ -3,34 +3,30 @@ import { useEffect } from "react";
 import { useUnit } from "effector-react";
 import InfiniteScroll from "react-infinite-scroll-component";
 
-import { MovieCategories } from "~/features/movies/movieCategories";
+import { MovieCategories } from "~/features/movies/movieCategories/ui";
 import { $moviesSearchQuery } from "~/features/movies/movieSearch/model";
+import {
+  $movieCategory,
+  MoviesCategories,
+  selectMovieCategory,
+} from "~/features/movies/movieCategories/model";
+
 import {
   $moviesList,
   $moviesGenres,
-  selectMovieCategory,
-  $movieCategory,
   loadMoviesGenres,
-  MoviesCategories,
   $moviesGenresLoading,
   loadNextMovies,
   loadMovies,
 } from "~/entities/movie/model";
 import { MovieCard } from "~/entities/movie/view";
+
 import { Loader } from "~/shared/ui/loader";
 
 export default function MoviePage() {
-  const [
-    moviesList,
-    movieCategory,
-    getMovies,
-    onSelectMovieCategory,
-    getNextMovies,
-  ] = useUnit([
+  const [moviesList, getMovies, getNextMovies] = useUnit([
     $moviesList,
-    $movieCategory,
     loadMovies,
-    selectMovieCategory,
     loadNextMovies,
   ]);
   const [genres, moviesGenresLoading, getMoviesGenres] = useUnit([
@@ -39,6 +35,10 @@ export default function MoviePage() {
     loadMoviesGenres,
   ]);
   const [moviesSearchQuery] = useUnit([$moviesSearchQuery]);
+  const [movieCategory, onSelectMovieCategory] = useUnit([
+    $movieCategory,
+    selectMovieCategory,
+  ]);
 
   useEffect(() => {
     onSelectMovieCategory(MoviesCategories[0]);

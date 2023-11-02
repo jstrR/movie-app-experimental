@@ -1,6 +1,6 @@
 import type { TUser } from "~/entities/user/types";
 import { AuthBar } from "~/features/auth/authBar";
-import { MovieSearch } from "~/features/movies/movieSearch";
+import { MovieSearch } from "~/features/movies/movieSearch/ui";
 
 export const HeaderActions = (props: { user?: TUser }) => {
   return (

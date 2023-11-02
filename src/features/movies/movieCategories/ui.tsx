@@ -1,11 +1,8 @@
 "use client";
 import { useUnit } from "effector-react";
 
-import {
-  $movieCategory,
-  selectMovieCategory,
-  MoviesCategories,
-} from "~/entities/movie/model";
+import { $movieCategory, selectMovieCategory, MoviesCategories } from "./model";
+
 import { ToggleButton } from "~/shared/ui/buttons";
 
 export const MovieCategories = ({ disabled }: { disabled?: boolean }) => {
