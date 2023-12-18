@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export const SearchInput = ({
   onChange,
@@ -8,7 +8,7 @@ export const SearchInput = ({
   onChange: (val: string) => void;
   initialVal?: string;
 }) => {
-  const [open, setOpen] = useState(window.innerWidth <= 640);
+  const [open, setOpen] = useState(false);
   const [value, setValue] = useState(initialVal || "");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -19,6 +19,10 @@ export const SearchInput = ({
       setOpen(false);
     }
   };
+
+  useEffect(() => {
+    setOpen(window?.innerWidth <= 640);
+  }, []);
 
   return (
     <div className="relative w-full">

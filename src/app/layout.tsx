@@ -37,7 +37,7 @@ export default async function RootLayout({
     <html lang="en" className="h-full">
       <body className="h-full bg-mainBg dark:bg-mainBgDark">
         <EffectorNext>
-          <ClientProvider>
+          <ClientProvider cookies={cookies().toString()}>
             <Header
               user={
                 currentSession

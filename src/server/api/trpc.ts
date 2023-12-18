@@ -14,7 +14,6 @@
  *
  * These allow you to access things when processing a request, like the database, the session, etc.
  */
-import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import { verify } from "jsonwebtoken";
 
 import { prisma } from "~/server/db";
@@ -29,11 +28,11 @@ import { prisma } from "~/server/db";
  *
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
-const createInnerTRPCContext = async (_opts: CreateNextContextOptions) => {
+const createInnerTRPCContext = async ({ req, resHeaders, info }: FetchCreateContextFnOptions) => {
   const getUserFromHeader = async () => {
     try {
-      if (_opts.req.headers.authorization) {
-        const incomingToken = _opts.req.headers.authorization || "";
+      if (req.headers.get('authorization')) {
+        const incomingToken = req.headers.get('authorization') || "";
         if (incomingToken) {
           const decodedToken = verify(incomingToken, env.JWT_SECRET) as { mail: string; };
           if (decodedToken) {
@@ -52,8 +51,9 @@ const createInnerTRPCContext = async (_opts: CreateNextContextOptions) => {
   return {
     prisma,
     user,
-    req: _opts.req,
-    res: _opts.res,
+    ...req,
+    resHeaders,
+    info
   };
 };
 
@@ -63,8 +63,8 @@ const createInnerTRPCContext = async (_opts: CreateNextContextOptions) => {
  *
  * @see https://trpc.io/docs/context
  */
-export const createTRPCContext = async (_opts: CreateNextContextOptions) => {
-  return await createInnerTRPCContext(_opts);
+export const createTRPCContext = async ({ req, resHeaders, info }: FetchCreateContextFnOptions) => {
+  return await createInnerTRPCContext({ req, resHeaders, info });
 };
 
 /**
@@ -77,6 +77,8 @@ export const createTRPCContext = async (_opts: CreateNextContextOptions) => {
 import { TRPCError, initTRPC } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
+import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
+
 import { env } from "~/env.mjs";
 
 const t = initTRPC.context<typeof createTRPCContext>().create({

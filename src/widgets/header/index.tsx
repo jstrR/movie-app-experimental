@@ -9,7 +9,7 @@ export const Header = (props: { user?: TUser }) => {
       <h2 className="mb-4 flex flex-[2] justify-between text-2xl font-bold text-main dark:text-mainDark sm:mb-0 sm:ml-20">
         <Link href="/">Movie-App</Link>
       </h2>
-      <HeaderActions />
+      <HeaderActions user={props.user} />
     </header>
   );
 };

@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { TokenExpiredError, verify } from "jsonwebtoken";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
+import { cookies } from "next/headers";
 
 import { prisma } from "~/server/db";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
@@ -58,22 +59,22 @@ export const sessionRouter = createTRPCRouter({
   }),
   getSession: publicProcedure
     .query(async ({ ctx }) => {
-      if (!ctx.req.headers.authorization && !ctx.req.cookies[refreshCookieName]) {
+      if (!ctx.headers.get('authorization') && !cookies().get(refreshCookieName)?.value) {
         throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Missing token' });
       }
       try {
         try {
-          const incomingToken = ctx.req.headers.authorization || ctx.req.cookies[refreshCookieName] || "";
+          const incomingToken = ctx.headers.get('authorization') || cookies().get(refreshCookieName)?.value || "";
           const { token, user, refreshCookie } = await getSession(incomingToken);
 
-          ctx.res.setHeader("set-cookie", refreshCookie);
+          ctx.resHeaders.set("set-cookie", refreshCookie);
           return { token, mail: user.mail, name: user.name, role: user.role };
         } catch (e) {
           if (e instanceof TokenExpiredError) {
-            if (ctx.req.headers.authorization) {
+            if (ctx.headers.get('authorization')) {
               const { token, user, refreshCookie } =
-                await getSession(ctx.req.cookies[refreshCookieName] || "");
-              ctx.res.setHeader("set-cookie", refreshCookie);
+                await getSession(ctx.headers.get('authorization') || "");
+              ctx.resHeaders.set("set-cookie", refreshCookie);
               return { token, mail: user.mail, name: user.name, role: user.role };
             } else {
               throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Token expired' });
@@ -82,8 +83,8 @@ export const sessionRouter = createTRPCRouter({
           throw e;
         }
       } catch (e) {
-        if (!ctx.res.getHeader("set-cookie")) {
-          ctx.res.setHeader("set-cookie", deletedCookie);
+        if (!ctx.resHeaders.get("set-cookie")) {
+          ctx.resHeaders.set("set-cookie", deletedCookie);
         }
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
           if (e.code === 'P2025') {

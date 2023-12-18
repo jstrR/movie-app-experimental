@@ -2,6 +2,7 @@ import { z } from "zod";
 import { hash, compare } from "bcryptjs"
 import { TRPCError } from "@trpc/server";
 import { Prisma } from "@prisma/client";
+import { cookies } from 'next/headers'
 
 import { PasswordValidation } from "~/entities/user";
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "~/server/api/trpc";
@@ -45,7 +46,7 @@ export const authRouter = createTRPCRouter({
             sessions: true,
           },
         });
-        ctx.res.setHeader("set-cookie", refreshCookie);
+        ctx.resHeaders.set("set-cookie", refreshCookie);
         return { token, mail: user.mail, name: user.name, role: user.role }
       } catch (err) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'The user with this email has already been created' });
@@ -92,7 +93,7 @@ export const authRouter = createTRPCRouter({
           }
         });
 
-        ctx.res.setHeader("set-cookie", refreshCookie)
+        ctx.resHeaders.set("set-cookie", refreshCookie)
         return { token, mail: existingUser.mail, name: existingUser.name, role: existingUser.role }
       } catch (err) {
         if (err instanceof Prisma.PrismaClientKnownRequestError) {
@@ -160,7 +161,7 @@ export const authRouter = createTRPCRouter({
           },
         });
 
-        ctx.res.setHeader("set-cookie", refreshCookie)
+        ctx.resHeaders.set("set-cookie", refreshCookie);
         return { token, mail: user.mail, name: user.name, role: user.role }
       } catch (err) {
         throw err;
@@ -169,8 +170,8 @@ export const authRouter = createTRPCRouter({
   logout: protectedProcedure
     .mutation(async ({ ctx }) => {
       try {
-        const cookieToken = ctx.req.cookies[refreshCookieName];
-        const incomingToken = ctx.req.headers.authorization || "";
+        const cookieToken = cookies().get(refreshCookieName)?.value;
+        const incomingToken = ctx.headers.get('authorization') || "";
         await ctx.prisma.user.update({
           select: { mail: true, name: true, role: true, password: true },
           data: {
@@ -180,7 +181,7 @@ export const authRouter = createTRPCRouter({
           },
           where: { mail: ctx.user.mail }
         });
-        ctx.res.setHeader("set-cookie", deletedCookie);
+        ctx.resHeaders.set("set-cookie", deletedCookie);
         return 204;
       } catch (e) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'User with such email does not exist' });

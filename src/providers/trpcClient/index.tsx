@@ -11,16 +11,7 @@ import { $currentUser } from "~/entities/user/model";
 import type { AppRouter } from "~/server/api/root";
 import { env } from "~/env.mjs";
 
-export const trpc = createTRPCReact<AppRouter>({
-  unstable_overrides: {
-    useMutation: {
-      async onSuccess(opts) {
-        await opts.originalFn();
-        await opts.queryClient.invalidateQueries();
-      },
-    },
-  },
-});
+export const trpc = createTRPCReact<AppRouter>();
 
 function getBaseUrl() {
   if (typeof window !== "undefined")
@@ -38,42 +29,59 @@ function getBaseUrl() {
   return `http://localhost:${process.env.PORT ?? 3000}`;
 }
 
-const createTrpcClient = (userToken?: string) => {
+const createTrpcClient = (cookies?: string, userToken?: string) => {
   return trpc.createClient({
+    transformer: superjson,
     links: [
       loggerLink({
         enabled: () => process.env.NODE_ENV !== "production",
       }),
       httpBatchLink({
         url: `${getBaseUrl()}/api/trpc`,
+        fetch(url, options) {
+          return fetch(url, {
+            ...options,
+            credentials: "include",
+          });
+        },
         headers() {
-          return userToken ? { Authorization: userToken } : {};
+          return {
+            cookie: cookies,
+            "x-trpc-source": "react",
+            ...(userToken && { Authorization: userToken }),
+          };
         },
       }),
     ],
-    transformer: superjson,
   });
 };
 
-export function ClientProvider(props: { children: React.ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient());
+export function ClientProvider(props: {
+  children: React.ReactNode;
+  cookies: string;
+}) {
+  const [queryClient] = useState(
+    () => new QueryClient({ defaultOptions: { mutations: {} } })
+  );
   const currentUser = useUnit($currentUser);
 
-  const [trpcClient, setTrpcClient] = useState(() => createTrpcClient());
+  const [trpcClient, setTrpcClient] = useState(() =>
+    createTrpcClient(props.cookies)
+  );
 
   useEffect(() => {
     if (currentUser?.token) {
-      setTrpcClient(createTrpcClient(currentUser?.token));
+      setTrpcClient(createTrpcClient(props.cookies, currentUser?.token));
     }
-  }, [currentUser?.token]);
+  }, [currentUser?.token, props.cookies]);
 
   return (
     <GoogleOAuthProvider clientId={env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
-      <trpc.Provider client={trpcClient} queryClient={queryClient}>
-        <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <trpc.Provider client={trpcClient} queryClient={queryClient}>
           {props.children}
-        </QueryClientProvider>
-      </trpc.Provider>
+        </trpc.Provider>
+      </QueryClientProvider>
     </GoogleOAuthProvider>
   );
 }
