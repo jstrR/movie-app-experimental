@@ -5,41 +5,29 @@ import { useUnit } from "effector-react";
 import { $moviesSearchQuery } from "~/features/movies/movieSearch/model";
 import { $movieCategory } from "~/entities/movieCategories/model";
 
-import {
-  setMoviesList,
-  loadNextMovies,
-  loadMovies,
-  $moviesList,
-} from "~/entities/movie/model";
+import { setMoviesList, $moviesList } from "~/entities/movie/model";
 import { MoviesPalette } from "~/entities/movie/view";
+import type { TMovieGenre, TMoviesReponse } from "~/entities/movie";
 
 import { Loader } from "~/shared/ui/loader";
-import type { TMovieGenre, TMoviesReponse } from "~/entities/movie";
+
+import { loadNextMovies } from "./model";
 
 export const MoviesList = ({
   moviesList,
   genres,
-  searchValue,
 }: {
   moviesList: TMoviesReponse;
   genres: TMovieGenre[];
-  searchValue?: string;
 }) => {
-  const [dynamicMoviesList, setMovies, getMovies, getNextMovies] = useUnit([
+  const [dynamicMoviesList, setMovies, getNextMovies] = useUnit([
     $moviesList,
     setMoviesList,
-    loadMovies,
     loadNextMovies,
   ]);
 
   const [moviesSearchQuery] = useUnit([$moviesSearchQuery]);
   const [movieCategory] = useUnit([$movieCategory]);
-
-  useEffect(() => {
-    if (!searchValue && movieCategory) {
-      getMovies(movieCategory);
-    }
-  }, [getMovies, movieCategory, searchValue]);
 
   useEffect(() => {
     setMovies(moviesList);

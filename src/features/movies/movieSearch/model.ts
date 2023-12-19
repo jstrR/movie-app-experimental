@@ -1,7 +1,13 @@
-import { createEffect, createEvent, createStore, sample } from "effector";
+import { createEffect, createEvent, createStore, sample, split } from "effector";
 
-import { requestMovies } from "~/entities/movie/api";
 import { $movieCategory } from "~/entities/movieCategories/model";
+import type { TMovieCategoryNext } from "~/entities/movieCategories/types";
+
+import type { TMoviesReponse } from "~/entities/movie";
+import { requestMovies } from "~/entities/movie/api";
+import { concatStoreResults } from "~/entities/movie/model";
+
+import { loadNextMovies } from "../moviesList/model";
 
 export const searchMoviesFx = createEffect((store: { query: string; page: number }) => requestMovies(store?.query, store?.page));
 
@@ -11,9 +17,20 @@ export const $moviesSearchQuery = createStore<string>("").on(setMoviesSearchQuer
 
 export const $moviesSearchLoading = searchMoviesFx.pending.map(state => state);
 
+export const $moviesList = createStore<TMoviesReponse | null>(null)
+  .on(searchMoviesFx.doneData, (store, data) => store && data.page !== 1 ? concatStoreResults(store, data) : data)
+
 sample({
   clock: $moviesSearchQuery,
   filter: query => !!query,
   fn: query => ({ query, page: 1 }),
   target: searchMoviesFx
+});
+
+split({
+  source: loadNextMovies,
+  match: (data: TMovieCategoryNext) => data.type,
+  cases: {
+    'search': searchMoviesFx
+  }
 });

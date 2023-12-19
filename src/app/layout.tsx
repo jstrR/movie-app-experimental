@@ -22,7 +22,7 @@ export default async function RootLayout({
   const refreshCookie = cookies().get(refreshCookieName);
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-  const serverClient = appRouter.createCaller({} as any);
+  const serverClient = appRouter.createCaller({} as never);
 
   let currentSession;
   if (refreshCookie) {

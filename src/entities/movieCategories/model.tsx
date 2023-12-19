@@ -1,4 +1,4 @@
-import { createEvent, createStore } from "effector";
+import { createStore } from "effector";
 
 import type { TMovieCategory } from "./types";
 
@@ -9,8 +9,4 @@ export const MoviesCategories = [
   { value: "topRated", label: "Top rated", visible: true },
 ] as const;
 
-export const selectMovieCategory = createEvent<TMovieCategory>();
-
-export const $movieCategory = createStore<TMovieCategory>(
-  MoviesCategories[0]
-).on(selectMovieCategory, (_, result) => result);
+export const $movieCategory = createStore<TMovieCategory>(MoviesCategories[0]);
