@@ -39,16 +39,18 @@ export const AuthBar = ({ user }: { user?: TUser }) => {
     },
   });
 
-  if (!currentUser && user && !mounted.current) {
-    return null;
+  let userDetails = currentUser || user;
+
+  if (!currentUser && user && mounted.current) {
+    userDetails = undefined;
   }
 
   return (
     <>
-      {currentUser ? (
+      {userDetails ? (
         <>
           <h3 className="mb-4 text-center text-2xl font-bold text-main dark:text-mainDark sm:mb-0">
-            {currentUser.name}
+            {userDetails.name}
           </h3>
           <ButtonGeneric onClick={() => logoutMutation.mutate()}>
             {"Log out".toLocaleUpperCase()}

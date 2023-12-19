@@ -52,6 +52,7 @@ const createInnerTRPCContext = async ({ req, resHeaders, info }: FetchCreateCont
     prisma,
     user,
     ...req,
+    headers: req.headers,
     resHeaders,
     info
   };
