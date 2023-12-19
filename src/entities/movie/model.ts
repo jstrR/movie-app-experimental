@@ -4,8 +4,8 @@ import { getCurrentMovies, getMoviesGenres, getPopularMovies, getTopRatedMovies,
 import type { TMoviesReponse, TMovieGenre } from './types';
 
 import { searchMoviesFx } from '~/features/movies/movieSearch/model';
-import { $movieCategory, MoviesCategories } from '~/features/movies/movieCategories/model';
-import type { TMovieCategoryNext, TMovieCategory } from '~/features/movies/movieCategories/types';
+import { $movieCategory, MoviesCategories } from '~/entities/movieCategories/model';
+import type { TMovieCategoryNext, TMovieCategory } from '~/entities/movieCategories/types';
 
 const concatStoreResults = (prevStore: TMoviesReponse, nextStore: TMoviesReponse) => (
   { ...prevStore, results: prevStore.results.concat(nextStore.results), page: nextStore.page }
@@ -19,13 +19,15 @@ export const getTopRatedMoviesFx = createEffect((store: TMovieCategoryNext) => g
 export const loadMovies = createEvent<TMovieCategory>();
 export const loadNextMovies = createEvent<TMovieCategoryNext>();
 
+export const setMoviesList = createEvent<TMoviesReponse>();
+
 export const $moviesList = createStore<TMoviesReponse | null>(null)
   .on(getCurrentMoviesFx.doneData, (store, data) => store && data.page !== 1 ? concatStoreResults(store, data) : data)
   .on(getPopularMoviesFx.doneData, (store, data) => store && data.page !== 1 ? concatStoreResults(store, data) : data)
   .on(getTopRatedMoviesFx.doneData, (store, data) => store && data.page !== 1 ? concatStoreResults(store, data) : data)
   .on(getUpcomingMoviesFx.doneData, (store, data) => store && data.page !== 1 ? concatStoreResults(store, data) : data)
   .on(searchMoviesFx.doneData, (store, data) => store && data.page !== 1 ? concatStoreResults(store, data) : data)
-  .reset($movieCategory)
+  .on(setMoviesList, (_, data) => data)
 
 export const $moviesListLoading = combine(
   getCurrentMoviesFx.pending,

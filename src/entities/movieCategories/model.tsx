@@ -11,7 +11,6 @@ export const MoviesCategories = [
 
 export const selectMovieCategory = createEvent<TMovieCategory>();
 
-export const $movieCategory = createStore<TMovieCategory | null>(null).on(
-  selectMovieCategory,
-  (_, result) => result
-);
+export const $movieCategory = createStore<TMovieCategory>(
+  MoviesCategories[0]
+).on(selectMovieCategory, (_, result) => result);

@@ -11,7 +11,9 @@ export const MovieSearch = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState(
+    searchParams?.get("search") || ""
+  );
 
   const [setSearchQuery] = useUnit([setMoviesSearchQuery]);
 
