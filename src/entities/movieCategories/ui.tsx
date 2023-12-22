@@ -16,6 +16,7 @@ export const MovieCategories = ({ disabled }: { disabled?: boolean }) => {
   ]);
 
   const handleSelectMovieCategory = (type: TMovieCategory) => {
+    console.log("fun");
     onSelectMovieCategory(type);
     router.push("/");
   };

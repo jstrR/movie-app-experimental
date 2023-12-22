@@ -1,8 +1,9 @@
 import { env } from "~/env.mjs";
-import {
-  type TMoviesReponse,
-  type TMovieGenresResponse,
-  type TMovieGenre,
+import type {
+  TMoviesReponse,
+  TMovieGenresResponse,
+  TMovieGenre,
+  TMovieDetails,
 } from "./types";
 
 type TMovieDataResp = {
@@ -87,7 +88,7 @@ export const requestMovies = async (
   page = 1
 ): Promise<TMoviesReponse> => {
   const resp = (await makeRequest(
-    "search/collection",
+    "search/movie",
     query ? `query=${query}&page=${page}` : undefined
   )) as TMoviesReponse;
   return resp;
@@ -95,3 +96,8 @@ export const requestMovies = async (
 
 export const getImageUrl = (path = "", width = "w500") =>
   `https://image.tmdb.org/t/p/${width}${path}`;
+
+export const getMovieDetails = async (movieId = ""): Promise<TMovieDetails> => {
+  const resp = (await makeRequest(`movie/${movieId}`)) as TMovieDetails;
+  return { ...resp };
+};

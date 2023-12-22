@@ -63,13 +63,6 @@ export type TMovieCredits = {
   crew: TMovieCast[];
 };
 
-export type TMovieDetails = {
-  details: TMovieType;
-  images: TMovieImages;
-  videos: TMovieVideos;
-  credits: TMovieCredits;
-};
-
 export type TMoviesReponse = {
   page: number;
   results: TMovieType[];
@@ -80,3 +73,34 @@ export type TMoviesReponse = {
 export type TMovieGenresResponse = {
   genres: TMovieGenre[];
 };
+
+export type TMovieDetails = {
+  adult: boolean;
+  backdrop_path: string;
+  belongs_to_collection: {
+    id: number;
+    name: string;
+    poster_path: string;
+    backdrop_path: string;
+  },
+  budget: number;
+  genres: TMovieGenre[];
+  homepage: string;
+  id: number;
+  imdb_id: string;
+  original_language: string;
+  original_title: string;
+  overview: string;
+  popularity: number;
+  poster_path: string;
+  release_date: string;
+  revenue: number;
+  runtime: number;
+  status: string;
+  tagline: string;
+  title: string;
+  video: boolean;
+  vote_average: number;
+  vote_count: number;
+  name: string;
+}
